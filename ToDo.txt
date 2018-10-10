@@ -1,0 +1,2 @@
+-Make todo file in github (Done,11-10,Bram)
+-Change .gitignore to ignore T.mat and waypoints.mat (Done,11-10,Bram)
