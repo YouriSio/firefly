@@ -98,7 +98,7 @@ end %mdlInitializeSizes
 %=============================================================================
 %
 function sys = mdlUpdate(t,x,u)
-sys=[];
+    sys = [];
 end %mdlUpdate
 %
 %=============================================================================
@@ -107,50 +107,49 @@ end %mdlUpdate
 %=============================================================================
 %
 function sys = mdlOutputs(t,x,u,T,parcontroller)
+    % magic numbers
+    k1 = parcontroller.k1; %Velocity gain
+    k2 = parcontroller.k2; %Position D
+    k3 = parcontroller.k3; %Position P
 
-% magic numbers
-k1 = parcontroller.k1; %Velocity gain
-k2 = parcontroller.k2; %Position D
-k3 = parcontroller.k3; %Position P
+    %% gather input, and state 
+    %state
+    x_world = u(1);
+    y_world = u(2);
+    z_world = u(3);
+    psi_world = u(4);
+    vx_world= u(5);
+    vy_world = u(6);
+    vz_world = u(7);
+    vpsi_world = u(8);
+    t = u(9); %time
 
-%% gather input, and state 
-%state
-x_world = u(1);
-y_world = u(2);
-z_world = u(3);
-psi_world = u(4);
-vx_world= u(5);
-vy_world = u(6);
-vz_world = u(7);
-vpsi_world = u(8);
-t = u(9); %time
-
-% -------------------------------------------------------------------------
-%% PD law with or without feedforward
-indt = min(max(floor(t/T.period),1),size(T.X,2));
-xdes = T.X(indt);
-ydes = T.Y(indt);
-zdes = T.Z(indt);
-psides = T.PSI(indt);
-vxdes = T.VX(indt);
-vydes = T.VY(indt);
-vzdes = T.VZ(indt);
-vpsides = T.VPSI(indt);
-axdes = T.AX(indt);
-aydes = T.AY(indt);
-azdes = T.AZ(indt);
-apsides = T.APSI(indt);
-if parcontroller.feedforward == 1
-    ax = k1*(xdes - x_world) + k2*(vxdes-vx_world) + axdes;
-    ay = k1*(ydes - y_world) + k2*(vydes-vy_world) + aydes;
-    az = k1*(zdes - z_world) + k2*(vzdes-vz_world) + azdes;
-    apsi = k1*(psides - psi_world) + k2*(vpsides-vpsi_world) + apsides;
-else
-    ax = k1*(xdes - x_world) + k2*(-vx_world);
-    ay = k1*(ydes - y_world) + k2*(-vy_world);
-    az = k1*(zdes - z_world) + k2*(-vz_world);
-    apsi = k1*(psides - psi_world) + k2*(-vpsi_world);
-end
+    % -------------------------------------------------------------------------
+    %% PD law with or without feedforward
+    indt = min(max(floor(t/T.period),1),size(T.X,2));
+    xdes = T.X(indt);
+    ydes = T.Y(indt);
+    zdes = T.Z(indt);
+    psides = T.PSI(indt);
+    vxdes = T.VX(indt);
+    vydes = T.VY(indt);
+    vzdes = T.VZ(indt);
+    vpsides = T.VPSI(indt);
+    axdes = T.AX(indt);
+    aydes = T.AY(indt);
+    azdes = T.AZ(indt);
+    apsides = T.APSI(indt);
+    if parcontroller.feedforward == 1
+        ax = k1*(xdes - x_world) + k2*(vxdes-vx_world) + axdes;
+        ay = k1*(ydes - y_world) + k2*(vydes-vy_world) + aydes;
+        az = k1*(zdes - z_world) + k2*(vzdes-vz_world) + azdes;
+        apsi = k1*(psides - psi_world) + k2*(vpsides-vpsi_world) + apsides;
+    else
+        ax = k1*(xdes - x_world) + k2*(-vx_world);
+        ay = k1*(ydes - y_world) + k2*(-vy_world);
+        az = k1*(zdes - z_world) + k2*(-vz_world);
+        apsi = k1*(psides - psi_world) + k2*(-vpsi_world);
+    end
 
 %% Output
 sys = [ax;ay;az;apsi];
