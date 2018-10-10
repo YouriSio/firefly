@@ -1592,32 +1592,6 @@ DEF CornerA Viewpoint {
   orientation 0.834632 -0.310962 -0.454635 1.43625
   fieldOfView 0.4
 }
-DEF TheGround Group {
-  bboxSize 4 4 4
-  children [
-    DEF BoxOnGround Transform {
-      translation 0 0 -0.2
-      children Shape {
-        geometry Box {
-          size 10 8 0.2
-        }
-      }
-    }
-    DEF Ground_ Transform {
-      translation 0 0 -0.25
-      children Shape {
-        appearance Appearance {
-          material Material {
-            diffuseColor 1 1 1
-          }
-        }
-        geometry Box {
-          size 14 10 0.1
-        }
-      }
-    }
-  ]
-}
 DEF CornerB Viewpoint {
   description "CornerB"
   position -15 15 7
@@ -1666,18 +1640,411 @@ DEF Top Viewpoint {
   orientation 0 1 0 0
   fieldOfView 0.4
 }
-DEF Shadow1 Transform {
-  rotation 1 0 0 1.5708
-  children Shape {
-    appearance Appearance {
-      material Material {
-        emissiveColor 0.8 0.8 0.8
-        diffuseColor 0 0 0
+DEF TheGround Group {
+  bboxSize 4 4 4
+  children [
+    DEF BoxOnGround Transform {
+      translation 0 0 -0.2
+      children Shape {
+        appearance Appearance {
+          material Material {
+            emissiveColor 0 0.6 0
+            diffuseColor 0 0.4 0
+          }
+        }
+        geometry Box {
+          size 10 8 0.2
+        }
       }
     }
-    geometry Cylinder {
-      radius 0.3
-      height 0.05
+    DEF Ground_ Transform {
+      translation 0 0 -0.25
+      children Shape {
+        appearance Appearance {
+          material Material {
+            diffuseColor 1 1 1
+          }
+        }
+        geometry Box {
+          size 14 12 0.1
+        }
+      }
     }
-  }
+    DEF OuterFieldBox Transform {
+      translation 0 0 -0.18
+      children [
+        DEF OuterWhite Shape {
+          appearance Appearance {
+            material Material {
+              emissiveColor 1 1 1
+              diffuseColor 0 0.4 0
+            }
+          }
+          geometry Box {
+            size 9.7 7.7 0.2
+          }
+        }
+        DEF InnerGreen Shape {
+          appearance Appearance {
+            material Material {
+              emissiveColor 0 0.8 0
+              diffuseColor 0 0.4 0
+            }
+          }
+          geometry Box {
+            size 9.3 7.3 0.2
+          }
+        }
+      ]
+    }
+    DEF MiddlePart Transform {
+      translation 0 0 -0.18
+      children [
+        DEF Line Shape {
+          appearance Appearance {
+            material Material {
+              emissiveColor 1 0.6 0.6
+              diffuseColor 1 1 1
+            }
+          }
+          geometry Box {
+            size 0.1 7.5 0.4
+          }
+        }
+        DEF Circle Transform {
+          rotation 1 0 0 1.5708
+          children [
+            DEF OuterCircle Shape {
+              appearance Appearance {
+                material Material {
+                  emissiveColor 1 1 1
+                  diffuseColor 0 0 0
+                }
+              }
+              geometry Cylinder {
+                radius 1.3
+                height 0.3
+              }
+            }
+            DEF InnerCircle Shape {
+              appearance Appearance {
+                material Material {
+                  emissiveColor 0 1 0
+                  diffuseColor 0 0 0
+                }
+              }
+              geometry Cylinder {
+                radius 1.15
+                height 0.3
+              }
+            }
+            DEF InnerMost Shape {
+              appearance Appearance {
+                material Material {
+                  emissiveColor 1 1 1
+                  diffuseColor 0 0 0
+                }
+              }
+              geometry Cylinder {
+                radius 0.15
+                height 0.3
+              }
+            }
+          ]
+        }
+      ]
+    }
+    DEF RightGoalPostMarks Transform {
+      translation 3.7 0 -0.18
+      children [
+        DEF OuterLine Shape {
+          appearance Appearance {
+            material Material {
+              emissiveColor 1 0.6 0.6
+              diffuseColor 1 1 1
+            }
+          }
+          geometry Box {
+            size 0.1 3 0.3
+          }
+        }
+        DEF InnerLine1 Transform {
+          translation 0.5 0 -0.1
+          children DEF Line1_0001 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 1.5 0.5
+            }
+          }
+        }
+        DEF InnerLine2 Transform {
+          translation 0.7 0.7 0.05
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0002 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 0.5 0.2
+            }
+          }
+        }
+        DEF InnerLine3 Transform {
+          translation 0.7 -0.7 0.05
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0003 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 0.5 0.2
+            }
+          }
+        }
+        DEF OuterLine3 Transform {
+          translation 0.5 -1.5 0.05
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0004 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 1.1 0.2
+            }
+          }
+        }
+        DEF OuterLine2 Transform {
+          translation 0.5 1.5 0.05
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0005 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 1.1 0.2
+            }
+          }
+        }
+      ]
+    }
+    DEF LeftGoalPostMarks Transform {
+      translation -3.7 0 -0.18
+      children [
+        DEF OuterLine_0001 Shape {
+          appearance Appearance {
+            material Material {
+              emissiveColor 1 0.6 0.6
+              diffuseColor 1 1 1
+            }
+          }
+          geometry Box {
+            size 0.1 3 0.3
+          }
+        }
+        DEF InnerLine1_0001 Transform {
+          translation -0.5 0 -0.1
+          children DEF Line1_0006 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 1.5 0.5
+            }
+          }
+        }
+        DEF InnerLine2_0001 Transform {
+          translation -0.7 0.7 0.05
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0007 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 0.5 0.2
+            }
+          }
+        }
+        DEF InnerLine3_0001 Transform {
+          translation -0.7 -0.7 0.05
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0008 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 0.5 0.2
+            }
+          }
+        }
+        DEF OuterLine3_0001 Transform {
+          translation -0.5 -1.5 0.05
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0009 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 1.1 0.2
+            }
+          }
+        }
+        DEF OuterLine2_0001 Transform {
+          translation -0.5 1.5 0.05
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0010 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 1.1 0.2
+            }
+          }
+        }
+      ]
+    }
+    DEF RightGoalPost Transform {
+      translation 3.7 0 1
+      rotation 0 1 0 1.57
+      children [
+        DEF OuterLine3_0002 Transform {
+          translation 0.3 -1.5 1
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0014 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 1.5 0.2
+            }
+          }
+        }
+        DEF OuterLine2_0002 Transform {
+          translation 0.3 1.5 1
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0015 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 1.5 0.2
+            }
+          }
+        }
+        DEF TopPost Transform {
+          translation -0.35 0 1
+          children DEF OuterLine_0002 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 0.6 0.6
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 3 0.2
+            }
+          }
+        }
+      ]
+    }
+    DEF LeftGoalPost Transform {
+      translation -5.8 0 1
+      rotation 0 1 0 1.57
+      children [
+        DEF OuterLine3_0003 Transform {
+          translation 0.3 -1.5 1
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0011 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 1.5 0.2
+            }
+          }
+        }
+        DEF OuterLine2_0003 Transform {
+          translation 0.3 1.5 1
+          scaleOrientation 0 0 0 0
+          rotation 0 0 1 1.57
+          children DEF Line1_0012 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 1.5 0.2
+            }
+          }
+        }
+        DEF TopPost_0001 Transform {
+          translation -0.35 0 1
+          children DEF OuterLine_0003 Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 0.6 0.6
+                diffuseColor 1 1 1
+              }
+            }
+            geometry Box {
+              size 0.1 3 0.2
+            }
+          }
+        }
+      ]
+    }
+  ]
 }
