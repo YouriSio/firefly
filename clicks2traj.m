@@ -37,23 +37,27 @@ else
     imshow './_Aux/soccerfieldpic.jpg'
     [xi,yi] = getpts;
     centersoccerfieldpic = [346 281]; % pixels
-    lengthsoccerfield = [8 10] %meters
+    lengthsoccerfield = [8 10]; %meters
     p = [ -lengthsoccerfield(1)/2*(yi-centersoccerfieldpic(2))/centersoccerfieldpic(2) lengthsoccerfield(2)/2*(xi-centersoccerfieldpic(1))/centersoccerfieldpic(2)]; % centerin, scaling, and siwtch axis 
     px = p(:,1);
     py = p(:,2);
+    
     if optsavewaypoints == 1
         save waypoints px py
     end
 end
+
 if optconstanheight == 1
     pz = -height*ones(size(px)); % -1 due to convention
 else
     pz = -ones(size(px));
     pz(1) = -2; pz(2) = -3; % customize here
 end
+
 N = length(px);
 Tp(1) = 0;
 P = [px';py';pz'];
+
 if optconstantspeed == 1
     epsilon = 0.01;
     for i = 2:N
@@ -64,6 +68,7 @@ else
     % custom T
     Tp = 0:N-1; % customize here
 end
+
 if optconstantyaw == 1
     psi = zeros(1,N);
 else
@@ -132,9 +137,11 @@ T.AZ   = xiz(3,:);             % z acceleration reference
 T.APSI = xipsi(3,:);           % yaw acceleration reference
 T.time = (1:size(T.X,2))*tau;  % discrete-time
 T.period = tau;                % sampling period
+
 if optsaveT == 1
     save T T
 end
+
 initscript
 % -------------------------------------------------------------------------
 

@@ -23,48 +23,19 @@ function [sys,x0,str,ts,simStateCompliance] = highleveltrajtrack(t,x,u,flag, T,p
 % the position along the path is determined by checking the closest point
 % to the path near the previous point
 
-switch flag,
-    %%%%%%%%%%%%%%%%%%
-    % Initialization %
-    %%%%%%%%%%%%%%%%%%
-    % Initialize the states, sample times, and state ordering strings.
-    case 0
-        [sys,x0,str,ts,simStateCompliance]=mdlInitializeSizes(T);
-        
-        %%%%%%%%%%%
-        % Updates %
-        %%%%%%%%%%%
-        % Returns the updates of discrete variabels.
-    case 2
-        sys=mdlUpdate(t,x,u);
-        
-        %%%%%%%%%%%
-        % Outputs %
-        %%%%%%%%%%%
-        % Return the outputs of the S-function block.
-    case 3
-        sys=mdlOutputs(t,x,u,T,parcontroller);
-        
-        %%%%%%%%%%%%%%%%%%%
-        % Unhandled flags %
-        %%%%%%%%%%%%%%%%%%%
-        % There are no termination tasks (flag=9) to be handled.
-        % Also, there are no continuous or discrete states,
-        % so flags 1,2, and 4 are not used, so return an empty
-        % matrix
-    case {1, 4, 9 }
-        sys=[];
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % Unexpected flags (error handling)%
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % Return an error message for unhandled flag values.
-    otherwise
-        DAStudio.error('Simulink:blocks:unhandledFlag', num2str(flag));
-        
+    switch flag
+        case 0
+            [sys,x0,str,ts,simStateCompliance]=mdlInitializeSizes(T);
+        case 2
+            sys=mdlUpdate(t,x,u);
+        case 3
+            sys=mdlOutputs(t,x,u,T,parcontroller);
+        case {1, 4, 9} % No discrete states, so 1,2 and 4 not used
+            sys = [];
+        otherwise
+            DAStudio.error('Simulink:blocks:unhandledFlag', num2str(flag));
+    end
 end
-
-end %controller
 
 %
 %=============================================================================
@@ -73,23 +44,20 @@ end %controller
 %=============================================================================
 %
 function [sys,x0,str,ts,simStateCompliance] = mdlInitializeSizes(T)
+    sizes = simsizes;
+    sizes.NumContStates  = 0;
+    sizes.NumDiscStates  = 0;
+    sizes.NumOutputs     = 4;  % dynamically sized
+    sizes.NumInputs      = 9;  % dynamically sized
+    sizes.DirFeedthrough = 1;   % has direct feedthrough
+    sizes.NumSampleTimes = 1;
 
-sizes = simsizes;
-sizes.NumContStates  = 0;
-sizes.NumDiscStates  = 0;
-sizes.NumOutputs     = 4;  % dynamically sized
-sizes.NumInputs      = 9;  % dynamically sized
-sizes.DirFeedthrough = 1;   % has direct feedthrough
-sizes.NumSampleTimes = 1;
-
-sys = simsizes(sizes);
-str = [];
-x0  = [];
-ts = [T.period 0];
-simStateCompliance = 'DefaultSimState';
-
-
-end %mdlInitializeSizes
+    sys = simsizes(sizes);
+    str = [];
+    x0  = [];
+    ts = [T.period 0];
+    simStateCompliance = 'DefaultSimState';
+end
 
 %
 %=============================================================================
@@ -99,7 +67,7 @@ end %mdlInitializeSizes
 %
 function sys = mdlUpdate(t,x,u)
     sys = [];
-end %mdlUpdate
+end
 %
 %=============================================================================
 % mdlOutputs
@@ -139,6 +107,7 @@ function sys = mdlOutputs(t,x,u,T,parcontroller)
     aydes = T.AY(indt);
     azdes = T.AZ(indt);
     apsides = T.APSI(indt);
+    
     if parcontroller.feedforward == 1
         ax = k1*(xdes - x_world) + k2*(vxdes-vx_world) + axdes;
         ay = k1*(ydes - y_world) + k2*(vydes-vy_world) + aydes;
@@ -151,7 +120,7 @@ function sys = mdlOutputs(t,x,u,T,parcontroller)
         apsi = k1*(psides - psi_world) + k2*(-vpsi_world);
     end
 
-%% Output
-sys = [ax;ay;az;apsi];
+    %% Output
+    sys = [ax;ay;az;apsi];
 end 
 
