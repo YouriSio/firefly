@@ -53,7 +53,7 @@ if option.constantheight == true
     pz = -height*ones(size(px)); % -1 due to convention
 else
     pz = -ones(size(px));
-    pz(1) = -2; pz(2) = -3; % customize here
+    pz(1) = -2; pz(2) = -3; % Customize here
 end
 
 N = length(px);
@@ -64,19 +64,18 @@ P = [px';py';pz'];
 if option.constantspeed == true
     epsilon = 0.01;
     for i = 2:N
-        % if two points are two close, spend epsilon sec
+        % If two points are two close, spend epsilon seconds
         Tp(i) = Tp(i-1)+max(norm(P(:,i)-P(:,i-1))/speed,epsilon);
     end
 else
-    % custom T
-    Tp = 0:N-1; % customize here
+    Tp = 0:N-1; % Customize here
 end
 
 if option.constantyaw == true
     psi = zeros(1,N);
 else
     psi = zeros(1,N);
-    psi(3) = pi/4; % customize yaw
+    psi(3) = pi/4; % Customize yaw
     psi(4) = -pi/4;
     psi(5) = pi/4;
 end
@@ -112,17 +111,17 @@ axis( [-lengthsoccerfield(1)/2+delta lengthsoccerfield(1)/2+delta -lengthsoccerf
 T.X    = xix(1,:);             % X  reference
 T.Y    = xiy(1,:);             % Y  reference
 T.Z    = xiz(1,:);             % Z  reference
-T.PSI  = xipsi(1,:);           % yaw reference
-T.VX   = xix(2,:);             % x velocity reference
-T.VY   = xiy(2,:);             % y velocity reference
-T.VZ   = xiz(2,:);             % z velocity reference
-T.VPSI = xipsi(2,:);           % yaw velocity reference
-T.AX   = xix(3,:);             % x acceleration reference
-T.AY   = xiy(3,:);             % y acceleration reference
-T.AZ   = xiz(3,:);             % z acceleration reference
-T.APSI = xipsi(3,:);           % yaw acceleration reference
-T.time = (1:size(T.X,2))*tau;  % discrete-time
-T.period = tau;                % sampling period
+T.PSI  = xipsi(1,:);           % Yaw reference
+T.VX   = xix(2,:);             % X velocity reference
+T.VY   = xiy(2,:);             % Y velocity reference
+T.VZ   = xiz(2,:);             % Z velocity reference
+T.VPSI = xipsi(2,:);           % Yaw velocity reference
+T.AX   = xix(3,:);             % X acceleration reference
+T.AY   = xiy(3,:);             % Y acceleration reference
+T.AZ   = xiz(3,:);             % Z acceleration reference
+T.APSI = xipsi(3,:);           % Yaw acceleration reference
+T.time = (1:size(T.X,2))*tau;  % Discrete-time
+T.period = tau;                % Sampling period
 
 if option.saveT == true
     save T T
