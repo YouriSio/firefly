@@ -1,0 +1,340 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Smooth trajectory generation using control based optimization (LQR)</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-10-02"><meta name="DC.source" content="lqrtrajgeneration.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Smooth trajectory generation using control based optimization (LQR)</h1><!--introduction--><p>function [xix,xiy,xiz]  = lqrtrajgeneration(P,T,X0,rho,tau1,N12)</p><p>Provide the nthe order derivatives of a trajectory interpolation the input points (xi,yi,zi) and times Ti, i = 1,\dots,N</p><p>Input arguments - <img src="lqrtrajgeneration_eq02661806082982697695.png" alt="$P$" style="width:9px;height:8px;"> is an <img src="lqrtrajgeneration_eq03266020876145938786.png" alt="$3 \times N$" style="width:29px;height:8px;"> vector such that   $ P = \begin{bmatrix} 			p_1 &amp; p_2 &amp; \dots &amp; p_N 		  \end{bmatrix}$ \\ - <img src="lqrtrajgeneration_eq14047577632175690031.png" alt="$T$" style="width:8px;height:8px;"> is a vector with times 	 $ T = \begin{bmatrix} 		   T_1 &amp; T_2 &amp; \dots &amp; T_N 			\end{bmatrix}$ - <img src="lqrtrajgeneration_eq03429287974156064896.png" alt="$X0$" style="width:15px;height:8px;"> is a <img src="lqrtrajgeneration_eq10745220619006025486.png" alt="$3\times n$" style="width:26px;height:8px;"> matrix with the initial trajectory position and derivatives 	X0 = [x(T1) &amp; x'(T1) &amp; \dots &amp; x^{(n-1)(T1)} \\ 				 y(T1) &amp; y'(T1) &amp; \dots &amp; y^{(n-1)(T1)} \\ 				x(T1) &amp; x'(T1) &amp; \dots &amp; x^{(n-1)(T1)} ] - rho is a weighting factor for the control input -\tau_1 is the sampling period to formulate the problem. -N12 is such that \tau_2 = tau1/N12 is the output sampling period.</p><p>output arguments are - xix is a matrix with entries 	[x(T1) &amp; x(T1+\tau_2) &amp; \dots &amp; x(T1+H\tau_2)\\ 				x'(T1)&amp; x'(T1+\tau_2) &amp; \dots &amp; x'(T1+H\tau_2)\\ \\ 				x^{(n)}(T1) &amp; x^{(n)}(T1+\tau_2) &amp; \dots &amp; x^{(n)}(T1+H\tau_2)]  where H = \floor{\frac{T_N}{\tau_2}} andxiy and xiz are defined similarly.</p><p>Author: <a href="mailto:d.antunes@tue.nl">d.antunes@tue.nl</a></p><p>Last modification: July, 2018</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">initializations</a></li><li><a href="#3">obtain rk</a></li><li><a href="#4">obtain optimal control inputs</a></li><li><a href="#5">obtain optimal control inputs</a></li><li><a href="#10">initializations</a></li><li><a href="#11">compute the gains</a></li><li><a href="#12">compute optimal trajectory (uk)</a></li></ul></div><h2 id="1">initializations</h2><pre class="codeinput"><span class="keyword">function</span> [xix,xiy,xiz]  = lqrtrajgeneration(P,T,X0,rho,tau1,N12)
+</pre><pre class="codeinput"><span class="comment">% -------------------------------------------------------------------------</span>
+N  = length(T);
+T  = T-T(1); <span class="comment">% without loss of generality we set T(1) = 0</span>
+h  = floor(T(end)/tau1);
+n  = size(X0,2);
+rk = zeros(3,h+1);
+Ac = [zeros(n-1,1) eye(n-1);zeros(1,n)];
+Bc = [zeros(n-1,1);1];
+sysd = c2d(ss(Ac,Bc,zeros(1,size(Ac,1)),0),tau1);
+A  = sysd.a; B = sysd.b;
+M  = [1 zeros(1,n-1)];
+R  = rho;
+tau2 = tau1/N12;
+<span class="comment">% -------------------------------------------------------------------------</span>
+
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><h2 id="3">obtain rk</h2><pre class="codeinput">i = 1;
+<span class="keyword">for</span> k = 1:h+1
+    tk = (k-1)*tau1;
+    <span class="keyword">if</span> tk &gt; T(i+1)
+        <span class="keyword">if</span> i+1 == N
+            <span class="keyword">break</span>;
+        <span class="keyword">else</span>
+            i = i+1;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    rk(:,k) = P(:,i) + (tk-T(i))/(T(i+1)-T(i))*(P(:,i+1)-P(:,i));
+<span class="keyword">end</span>
+<span class="comment">% -------------------------------------------------------------------------</span>
+
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><h2 id="4">obtain optimal control inputs</h2><pre class="codeinput">rkx = rk(1,:); rky = rk(2,:); rkz = rk(3,:);
+x0x = X0(1,:); x0y = X0(2,:); x0z = X0(3,:);
+[ux] = lqrpreview(A,B,M,R,rkx,x0x);
+[uy] = lqrpreview(A,B,M,R,rky,x0y);
+[uz] = lqrpreview(A,B,M,R,rkz,x0z);
+<span class="comment">% -------------------------------------------------------------------------</span>
+
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><h2 id="5">obtain optimal control inputs</h2><pre class="codeinput">sysdd = c2d(ss(Ac,Bc,zeros(1,size(Ac,1)),0),tau2);
+Ad = sysdd.a; Bd = sysdd.b;
+xix_ = zeros(n,h*N12+1);
+xiy_ = zeros(n,h*N12+1);
+xiz_ = zeros(n,h*N12+1);
+xix_(:,1) = x0x;
+xiy_(:,1) = x0y;
+xiz_(:,1) = x0z;
+ux_ = kron(ux,ones(1,N12));
+uy_ = kron(uy,ones(1,N12));
+uz_ = kron(uz,ones(1,N12));
+<span class="keyword">for</span> kappa = 1:h*N12
+    xix_(:,kappa+1) = Ad*xix_(:,kappa) + Bd*ux_(kappa);
+    xiy_(:,kappa+1) = Ad*xiy_(:,kappa) + Bd*uy_(kappa);
+    xiz_(:,kappa+1) = Ad*xiz_(:,kappa) + Bd*uz_(kappa);
+<span class="keyword">end</span>
+xix = [xix_;ux_ ux_(end)];
+xiy = [xiy_;uy_ uy_(end)];
+xiz = [xiz_;uz_ uz_(end)];
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><p>function lqrpreview</p><p>Provide the optimal solution to the problem</p><p>(\sum_{k=0}^{h-1}\|Mx_k-r_k\|^2 + u_k^\intercal Ru_k +alphah\|Mx_h-r_h\|^2) subject to x_{k+1} = Ax_k+Bu_k, \ \ k \in \mathbb{N}_0</p><p>which is given by u_k = K_k x_k + L_k</p><p>Input arguments:  Matrices A,B,M,R,                   matrix with reference rk = [r0 r1 \dots rh]                   initial condition x0                   optionally alphah (default value alphah = 1) Output arguments: matrix with optimal control inputs u = [u0 u1 dots uh-1]                   matrices with gains K(:,:,k) = K_k, L(:,:,k) = L_k</p><p>Author: <a href="mailto:d.antunes@tue.nl">d.antunes@tue.nl</a></p><p>Last modification: July, 2018</p><pre class="codeinput"><span class="keyword">function</span> [u,K,L] = lqrpreview(A,B,M,R,rk,x0,alphah)
+</pre><pre class="codeinput"><span class="comment">% parse input -------------------------------------------------------------</span>
+</pre><pre class="codeinput"><span class="keyword">if</span> nargin == 6
+    alphah = 1;
+<span class="keyword">end</span>
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><h2 id="10">initializations</h2><pre class="codeinput">h = length(rk)-1;
+n = size(A,1);
+m = size(B,2);
+p = size(M,1);
+P = zeros(n,n,h+1);
+N = zeros(1,n,h+1);
+K = zeros(m,n,h);
+L = zeros(m,1,h);
+u = zeros(m,h);
+x = zeros(n,h+1);
+<span class="comment">% -------------------------------------------------------------------------</span>
+
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><h2 id="11">compute the gains</h2><pre class="codeinput">P(:,:,h+1) = alphah*M'*M;
+N(:,:,h+1) = -alphah*2*rk(:,h+1)'*M;
+<span class="keyword">for</span> k = h:-1:1
+    P(:,:,k) = M'*M + A'*P(:,:,k+1)*A-A'*P(:,:,k+1)*B*inv(R+B'*P(:,:,k+1)*B)*B'*P(:,:,k+1)*A;
+    K(:,:,k) = -inv(R+B'*P(:,:,k+1)*B)*B'*P(:,:,k+1)*A;
+    N(:,:,k) = -2*rk(:,k)'*M + N(:,:,k+1)*(A+B*K(:,:,k));
+    L(:,:,k) = -inv(R+B'*P(:,:,k+1)*B)*B'*1/2*N(:,:,k+1)';
+<span class="keyword">end</span>
+<span class="comment">% -------------------------------------------------------------------------</span>
+
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><h2 id="12">compute optimal trajectory (uk)</h2><pre class="codeinput">x(:,1)   = x0;
+<span class="keyword">for</span> k = 1:h
+    u(:,k) = K(:,:,k)*x(:,k) + L(:,:,k);
+    x(:,k+1) = A*x(:,k) + B*u(:,k);
+<span class="keyword">end</span>
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Smooth trajectory generation using control based optimization (LQR)
+% function [xix,xiy,xiz]  = lqrtrajgeneration(P,T,X0,rho,tau1,N12)
+%
+% Provide the nthe order derivatives of a trajectory interpolation the
+% input points (xi,yi,zi) and times Ti, i = 1,\dots,N
+%
+% Input arguments
+% - $P$ is an $3 \times N$ vector such that
+%   $ P = \begin{bmatrix}
+% 			p_1 & p_2 & \dots & p_N
+% 		  \end{bmatrix}$ \\
+% - $T$ is a vector with times
+% 	 $ T = \begin{bmatrix}
+% 		   T_1 & T_2 & \dots & T_N
+% 			\end{bmatrix}$
+% - $X0$ is a $3\times n$ matrix with the initial trajectory position and derivatives
+% 	X0 = [x(T1) & x'(T1) & \dots & x^{(n-1)(T1)} \\
+% 				 y(T1) & y'(T1) & \dots & y^{(n-1)(T1)} \\
+% 				x(T1) & x'(T1) & \dots & x^{(n-1)(T1)} ]
+% - rho is a weighting factor for the control input
+% -\tau_1 is the sampling period to formulate the problem.
+% -N12 is such that \tau_2 = tau1/N12 is the output sampling period.
+%
+% output arguments are
+% - xix is a matrix with entries
+% 	[x(T1) & x(T1+\tau_2) & \dots & x(T1+H\tau_2)\\
+% 				x'(T1)& x'(T1+\tau_2) & \dots & x'(T1+H\tau_2)\\ \\
+% 				x^{(n)}(T1) & x^{(n)}(T1+\tau_2) & \dots & x^{(n)}(T1+H\tau_2)]
+%  where H = \floor{\frac{T_N}{\tau_2}} andxiy and xiz are defined similarly.
+%
+% Author: d.antunes@tue.nl
+%
+% Last modification: July, 2018
+
+
+%% initializations
+function [xix,xiy,xiz]  = lqrtrajgeneration(P,T,X0,rho,tau1,N12)
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+N  = length(T);
+T  = T-T(1); % without loss of generality we set T(1) = 0
+h  = floor(T(end)/tau1);
+n  = size(X0,2);
+rk = zeros(3,h+1);
+Ac = [zeros(n-1,1) eye(n-1);zeros(1,n)];
+Bc = [zeros(n-1,1);1];
+sysd = c2d(ss(Ac,Bc,zeros(1,size(Ac,1)),0),tau1);
+A  = sysd.a; B = sysd.b;
+M  = [1 zeros(1,n-1)];
+R  = rho;
+tau2 = tau1/N12;
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% obtain rk
+i = 1;
+for k = 1:h+1
+    tk = (k-1)*tau1;
+    if tk > T(i+1)
+        if i+1 == N
+            break;
+        else
+            i = i+1;
+        end
+    end
+    rk(:,k) = P(:,i) + (tk-T(i))/(T(i+1)-T(i))*(P(:,i+1)-P(:,i));
+end
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% obtain optimal control inputs
+rkx = rk(1,:); rky = rk(2,:); rkz = rk(3,:);
+x0x = X0(1,:); x0y = X0(2,:); x0z = X0(3,:);
+[ux] = lqrpreview(A,B,M,R,rkx,x0x);
+[uy] = lqrpreview(A,B,M,R,rky,x0y);
+[uz] = lqrpreview(A,B,M,R,rkz,x0z);
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% obtain optimal control inputs
+sysdd = c2d(ss(Ac,Bc,zeros(1,size(Ac,1)),0),tau2);
+Ad = sysdd.a; Bd = sysdd.b;
+xix_ = zeros(n,h*N12+1);
+xiy_ = zeros(n,h*N12+1);
+xiz_ = zeros(n,h*N12+1);
+xix_(:,1) = x0x;
+xiy_(:,1) = x0y;
+xiz_(:,1) = x0z;
+ux_ = kron(ux,ones(1,N12));
+uy_ = kron(uy,ones(1,N12));
+uz_ = kron(uz,ones(1,N12));
+for kappa = 1:h*N12
+    xix_(:,kappa+1) = Ad*xix_(:,kappa) + Bd*ux_(kappa);
+    xiy_(:,kappa+1) = Ad*xiy_(:,kappa) + Bd*uy_(kappa);
+    xiz_(:,kappa+1) = Ad*xiz_(:,kappa) + Bd*uz_(kappa);
+end
+xix = [xix_;ux_ ux_(end)];
+xiy = [xiy_;uy_ uy_(end)];
+xiz = [xiz_;uz_ uz_(end)];
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+end
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%%
+% function lqrpreview
+%
+% Provide the optimal solution to the problem
+%
+% (\sum_{k=0}^{h-1}\|Mx_k-r_k\|^2 + u_k^\intercal Ru_k +alphah\|Mx_h-r_h\|^2)
+% subject to
+% x_{k+1} = Ax_k+Bu_k, \ \ k \in \mathbb{N}_0
+%
+% which is given by u_k = K_k x_k + L_k
+%
+% Input arguments:  Matrices A,B,M,R,
+%                   matrix with reference rk = [r0 r1 \dots rh]
+%                   initial condition x0
+%                   optionally alphah (default value alphah = 1)
+% Output arguments: matrix with optimal control inputs u = [u0 u1 dots uh-1]
+%                   matrices with gains K(:,:,k) = K_k, L(:,:,k) = L_k
+%
+% Author: d.antunes@tue.nl
+%
+% Last modification: July, 2018
+
+function [u,K,L] = lqrpreview(A,B,M,R,rk,x0,alphah)
+
+% parse input REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%%
+if nargin == 6
+    alphah = 1;
+end
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% initializations
+h = length(rk)-1;
+n = size(A,1);
+m = size(B,2);
+p = size(M,1);
+P = zeros(n,n,h+1);
+N = zeros(1,n,h+1);
+K = zeros(m,n,h);
+L = zeros(m,1,h);
+u = zeros(m,h);
+x = zeros(n,h+1);
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% compute the gains
+P(:,:,h+1) = alphah*M'*M;
+N(:,:,h+1) = -alphah*2*rk(:,h+1)'*M;
+for k = h:-1:1
+    P(:,:,k) = M'*M + A'*P(:,:,k+1)*A-A'*P(:,:,k+1)*B*inv(R+B'*P(:,:,k+1)*B)*B'*P(:,:,k+1)*A;
+    K(:,:,k) = -inv(R+B'*P(:,:,k+1)*B)*B'*P(:,:,k+1)*A;
+    N(:,:,k) = -2*rk(:,k)'*M + N(:,:,k+1)*(A+B*K(:,:,k));
+    L(:,:,k) = -inv(R+B'*P(:,:,k+1)*B)*B'*1/2*N(:,:,k+1)';
+end
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% compute optimal trajectory (uk)
+x(:,1)   = x0;
+for k = 1:h
+    u(:,k) = K(:,:,k)*x(:,k) + L(:,:,k);
+    x(:,k+1) = A*x(:,k) + B*u(:,k);
+end
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+end
+
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,365 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>High level control of the quad</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-10-02"><meta name="DC.source" content="highleveltrajtrack.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>High level control of the quad</h1><!--introduction--><pre>Sees the quad as a double integrator,
+receiving 3D position+yaw angle and velocity+yaw rate and outputting acceleration.
+Standard proportional derivative control law with the option for feedback
+or not set by flag parcontroller.feedforward.</pre><p>Input arguments u with x_world = u(1); y_world = u(2); z_world = u(3); psi_world = u(4); vx_world= u(5); vy_world = u(6); vz_world = u(7); vpsi_world = u(8); t = u(9); %time</p><p>Output arguments: four accelerations [ax;ay;az;apsi];</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">S-Function definition</a></li><li><a href="#3">gather input, and state</a></li><li><a href="#4">PD law with or without feedforward</a></li><li><a href="#5">Output</a></li></ul></div><h2 id="1">S-Function definition</h2><pre class="codeinput"><span class="keyword">function</span> [sys,x0,str,ts,simStateCompliance] = highleveltrajtrack(t,x,u,flag, T,parcontroller)
+<span class="comment">% This controller enforces a general path described in T</span>
+<span class="comment">% the position along the path is determined by checking the closest point</span>
+<span class="comment">% to the path near the previous point</span>
+
+<span class="keyword">switch</span> flag,
+    <span class="comment">%%%%%%%%%%%%%%%%%%</span>
+    <span class="comment">% Initialization %</span>
+    <span class="comment">%%%%%%%%%%%%%%%%%%</span>
+    <span class="comment">% Initialize the states, sample times, and state ordering strings.</span>
+    <span class="keyword">case</span> 0
+        [sys,x0,str,ts,simStateCompliance]=mdlInitializeSizes(T);
+
+        <span class="comment">%%%%%%%%%%%</span>
+        <span class="comment">% Updates %</span>
+        <span class="comment">%%%%%%%%%%%</span>
+        <span class="comment">% Returns the updates of discrete variabels.</span>
+    <span class="keyword">case</span> 2
+        sys=mdlUpdate(t,x,u);
+
+        <span class="comment">%%%%%%%%%%%</span>
+        <span class="comment">% Outputs %</span>
+        <span class="comment">%%%%%%%%%%%</span>
+        <span class="comment">% Return the outputs of the S-function block.</span>
+    <span class="keyword">case</span> 3
+        sys=mdlOutputs(t,x,u,T,parcontroller);
+
+        <span class="comment">%%%%%%%%%%%%%%%%%%%</span>
+        <span class="comment">% Unhandled flags %</span>
+        <span class="comment">%%%%%%%%%%%%%%%%%%%</span>
+        <span class="comment">% There are no termination tasks (flag=9) to be handled.</span>
+        <span class="comment">% Also, there are no continuous or discrete states,</span>
+        <span class="comment">% so flags 1,2, and 4 are not used, so return an empty</span>
+        <span class="comment">% matrix</span>
+    <span class="keyword">case</span> {1, 4, 9 }
+        sys=[];
+
+        <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+        <span class="comment">% Unexpected flags (error handling)%</span>
+        <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+        <span class="comment">% Return an error message for unhandled flag values.</span>
+    <span class="keyword">otherwise</span>
+        DAStudio.error(<span class="string">'Simulink:blocks:unhandledFlag'</span>, num2str(flag));
+
+<span class="keyword">end</span>
+
+<span class="keyword">end</span> <span class="comment">%controller</span>
+
+<span class="comment">%</span>
+<span class="comment">%=============================================================================</span>
+<span class="comment">% mdlInitializeSizes</span>
+<span class="comment">% Return the sizes, initial conditions, and sample times for the S-function.</span>
+<span class="comment">%=============================================================================</span>
+<span class="comment">%</span>
+<span class="keyword">function</span> [sys,x0,str,ts,simStateCompliance] = mdlInitializeSizes(T)
+
+sizes = simsizes;
+sizes.NumContStates  = 0;
+sizes.NumDiscStates  = 0;
+sizes.NumOutputs     = 4;  <span class="comment">% dynamically sized</span>
+sizes.NumInputs      = 9;  <span class="comment">% dynamically sized</span>
+sizes.DirFeedthrough = 1;   <span class="comment">% has direct feedthrough</span>
+sizes.NumSampleTimes = 1;
+
+sys = simsizes(sizes);
+str = [];
+x0  = [];
+ts = [T.period 0];
+simStateCompliance = <span class="string">'DefaultSimState'</span>;
+
+
+<span class="keyword">end</span> <span class="comment">%mdlInitializeSizes</span>
+
+<span class="comment">%</span>
+<span class="comment">%=============================================================================</span>
+<span class="comment">% mdlUpdate</span>
+<span class="comment">% Returns the updated state for the S-function</span>
+<span class="comment">%=============================================================================</span>
+<span class="comment">%</span>
+<span class="keyword">function</span> sys = mdlUpdate(t,x,u)
+sys=[];
+<span class="keyword">end</span> <span class="comment">%mdlUpdate</span>
+<span class="comment">%</span>
+<span class="comment">%=============================================================================</span>
+<span class="comment">% mdlOutputs</span>
+<span class="comment">% Return the output vector for the S-function</span>
+<span class="comment">%=============================================================================</span>
+<span class="comment">%</span>
+<span class="keyword">function</span> sys = mdlOutputs(t,x,u,T,parcontroller)
+</pre><pre class="codeinput"><span class="comment">% magic numbers</span>
+k1 = parcontroller.k1; <span class="comment">%Velocity gain</span>
+k2 = parcontroller.k2; <span class="comment">%Position D</span>
+k3 = parcontroller.k3; <span class="comment">%Position P</span>
+</pre><h2 id="3">gather input, and state</h2><pre class="codeinput"><span class="comment">%state</span>
+x_world = u(1);
+y_world = u(2);
+z_world = u(3);
+psi_world = u(4);
+vx_world= u(5);
+vy_world = u(6);
+vz_world = u(7);
+vpsi_world = u(8);
+t = u(9); <span class="comment">%time</span>
+
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><h2 id="4">PD law with or without feedforward</h2><pre class="codeinput">indt = min(max(floor(t/T.period),1),size(T.X,2));
+xdes = T.X(indt);
+ydes = T.Y(indt);
+zdes = T.Z(indt);
+psides = T.PSI(indt);
+vxdes = T.VX(indt);
+vydes = T.VY(indt);
+vzdes = T.VZ(indt);
+vpsides = T.VPSI(indt);
+axdes = T.AX(indt);
+aydes = T.AY(indt);
+azdes = T.AZ(indt);
+apsides = T.APSI(indt);
+<span class="keyword">if</span> parcontroller.feedforward == 1
+    ax = k1*(xdes - x_world) + k2*(vxdes-vx_world) + axdes;
+    ay = k1*(ydes - y_world) + k2*(vydes-vy_world) + aydes;
+    az = k1*(zdes - z_world) + k2*(vzdes-vz_world) + azdes;
+    apsi = k1*(psides - psi_world) + k2*(vpsides-vpsi_world) + apsides;
+<span class="keyword">else</span>
+    ax = k1*(xdes - x_world) + k2*(-vx_world);
+    ay = k1*(ydes - y_world) + k2*(-vy_world);
+    az = k1*(zdes - z_world) + k2*(-vz_world);
+    apsi = k1*(psides - psi_world) + k2*(-vpsi_world);
+<span class="keyword">end</span>
+</pre><h2 id="5">Output</h2><pre class="codeinput">sys = [ax;ay;az;apsi];
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% High level control of the quad
+%  Sees the quad as a double integrator, 
+%  receiving 3D position+yaw angle and velocity+yaw rate and outputting acceleration.
+%  Standard proportional derivative control law with the option for feedback 
+%  or not set by flag parcontroller.feedforward.
+%
+% Input arguments u with
+% x_world = u(1);
+% y_world = u(2);
+% z_world = u(3);
+% psi_world = u(4);
+% vx_world= u(5);
+% vy_world = u(6);
+% vz_world = u(7);
+% vpsi_world = u(8);
+% t = u(9); %time
+%
+% Output arguments: four accelerations [ax;ay;az;apsi];
+
+%% S-Function definition
+function [sys,x0,str,ts,simStateCompliance] = highleveltrajtrack(t,x,u,flag, T,parcontroller)
+% This controller enforces a general path described in T
+% the position along the path is determined by checking the closest point
+% to the path near the previous point
+
+switch flag,
+    %%%%%%%%%%%%%%%%%%
+    % Initialization %
+    %%%%%%%%%%%%%%%%%%
+    % Initialize the states, sample times, and state ordering strings.
+    case 0
+        [sys,x0,str,ts,simStateCompliance]=mdlInitializeSizes(T);
+        
+        %%%%%%%%%%%
+        % Updates %
+        %%%%%%%%%%%
+        % Returns the updates of discrete variabels.
+    case 2
+        sys=mdlUpdate(t,x,u);
+        
+        %%%%%%%%%%%
+        % Outputs %
+        %%%%%%%%%%%
+        % Return the outputs of the S-function block.
+    case 3
+        sys=mdlOutputs(t,x,u,T,parcontroller);
+        
+        %%%%%%%%%%%%%%%%%%%
+        % Unhandled flags %
+        %%%%%%%%%%%%%%%%%%%
+        % There are no termination tasks (flag=9) to be handled.
+        % Also, there are no continuous or discrete states,
+        % so flags 1,2, and 4 are not used, so return an empty
+        % matrix
+    case {1, 4, 9 }
+        sys=[];
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Unexpected flags (error handling)%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Return an error message for unhandled flag values.
+    otherwise
+        DAStudio.error('Simulink:blocks:unhandledFlag', num2str(flag));
+        
+end
+
+end %controller
+
+%
+%=============================================================================
+% mdlInitializeSizes
+% Return the sizes, initial conditions, and sample times for the S-function.
+%=============================================================================
+%
+function [sys,x0,str,ts,simStateCompliance] = mdlInitializeSizes(T)
+
+sizes = simsizes;
+sizes.NumContStates  = 0;
+sizes.NumDiscStates  = 0;
+sizes.NumOutputs     = 4;  % dynamically sized
+sizes.NumInputs      = 9;  % dynamically sized
+sizes.DirFeedthrough = 1;   % has direct feedthrough
+sizes.NumSampleTimes = 1;
+
+sys = simsizes(sizes);
+str = [];
+x0  = [];
+ts = [T.period 0];
+simStateCompliance = 'DefaultSimState';
+
+
+end %mdlInitializeSizes
+
+%
+%=============================================================================
+% mdlUpdate
+% Returns the updated state for the S-function
+%=============================================================================
+%
+function sys = mdlUpdate(t,x,u)
+sys=[];
+end %mdlUpdate
+%
+%=============================================================================
+% mdlOutputs
+% Return the output vector for the S-function
+%=============================================================================
+%
+function sys = mdlOutputs(t,x,u,T,parcontroller)
+
+% magic numbers
+k1 = parcontroller.k1; %Velocity gain
+k2 = parcontroller.k2; %Position D
+k3 = parcontroller.k3; %Position P
+
+%% gather input, and state 
+%state
+x_world = u(1);
+y_world = u(2);
+z_world = u(3);
+psi_world = u(4);
+vx_world= u(5);
+vy_world = u(6);
+vz_world = u(7);
+vpsi_world = u(8);
+t = u(9); %time
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% PD law with or without feedforward
+indt = min(max(floor(t/T.period),1),size(T.X,2));
+xdes = T.X(indt);
+ydes = T.Y(indt);
+zdes = T.Z(indt);
+psides = T.PSI(indt);
+vxdes = T.VX(indt);
+vydes = T.VY(indt);
+vzdes = T.VZ(indt);
+vpsides = T.VPSI(indt);
+axdes = T.AX(indt);
+aydes = T.AY(indt);
+azdes = T.AZ(indt);
+apsides = T.APSI(indt);
+if parcontroller.feedforward == 1
+    ax = k1*(xdes - x_world) + k2*(vxdes-vx_world) + axdes;
+    ay = k1*(ydes - y_world) + k2*(vydes-vy_world) + aydes;
+    az = k1*(zdes - z_world) + k2*(vzdes-vz_world) + azdes;
+    apsi = k1*(psides - psi_world) + k2*(vpsides-vpsi_world) + apsides;
+else
+    ax = k1*(xdes - x_world) + k2*(-vx_world);
+    ay = k1*(ydes - y_world) + k2*(-vy_world);
+    az = k1*(zdes - z_world) + k2*(-vz_world);
+    apsi = k1*(psides - psi_world) + k2*(-vpsi_world);
+end
+
+%% Output
+sys = [ax;ay;az;apsi];
+end 
+
+
+##### SOURCE END #####
+--></body></html>

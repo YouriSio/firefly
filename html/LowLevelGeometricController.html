@@ -1,0 +1,315 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Low level control of the quad, using a geometrically inspired control technique.</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-10-02"><meta name="DC.source" content="LowLevelGeometricController.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Low level control of the quad, using a geometrically inspired control technique.</h1><!--introduction--><p>S-Function to control the thurst vector and the psi angle It requires as input the desired accelerations coming from an outer loop controller, the rotation matrix representing the attitute of the quad and the angular velocity. It tries to track these desired accelerations by controlling the quad's thurst vector.</p><p>Input arguments: u such that aref       = u(1:3); Psiref     = u(4); rx         = u(5:7); ry         = u(8:10); rz         = u(11:13); w           = u(14:16); where R = [rx ry rz] is the rotation matrix</p><p>Output arguments control input u = [T \tau_\phi \tau_\theta \tau_\psi]</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">S-Function definition</a></li><li><a href="#3">parse input and constants also defined in parcontroller</a></li><li><a href="#4">control law for the torque \tau and thurst T</a></li></ul></div><h2 id="1">S-Function definition</h2><pre class="codeinput"><span class="keyword">function</span> [sys,x0,str,ts,simStateCompliance] = LowLevelGeometricController(t,x,u,flag,parmodel,parcontroller)
+
+<span class="keyword">switch</span> flag,
+  <span class="comment">%%%%%%%%%%%%%%%%%%</span>
+  <span class="comment">% Initialization %</span>
+  <span class="comment">%%%%%%%%%%%%%%%%%%</span>
+  <span class="comment">% Initialize the states, sample times, and state ordering strings.</span>
+  <span class="keyword">case</span> 0
+    [sys,x0,str,ts,simStateCompliance]=mdlInitializeSizes;
+
+  <span class="comment">%%%%%%%%%%%</span>
+  <span class="comment">% Outputs %</span>
+  <span class="comment">%%%%%%%%%%%</span>
+  <span class="comment">% Return the outputs of the S-function block.</span>
+  <span class="keyword">case</span> 3
+    sys=mdlOutputs(t,x,u,parmodel,parcontroller);
+
+  <span class="comment">%%%%%%%%%%%%%%%%%%%</span>
+  <span class="comment">% Unhandled flags %</span>
+  <span class="comment">%%%%%%%%%%%%%%%%%%%</span>
+  <span class="comment">% There are no termination tasks (flag=9) to be handled.</span>
+  <span class="comment">% Also, there are no continuous or discrete states,</span>
+  <span class="comment">% so flags 1,2, and 4 are not used, so return an empty</span>
+  <span class="comment">% matrix</span>
+  <span class="keyword">case</span> { 1, 2, 4, 9 }
+    sys=[];
+
+  <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+  <span class="comment">% Unexpected flags (error handling)%</span>
+  <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+  <span class="comment">% Return an error message for unhandled flag values.</span>
+  <span class="keyword">otherwise</span>
+    DAStudio.error(<span class="string">'Simulink:blocks:unhandledFlag'</span>, num2str(flag));
+
+<span class="keyword">end</span>
+
+<span class="comment">% end timestwo</span>
+
+<span class="comment">%</span>
+<span class="comment">%=============================================================================</span>
+<span class="comment">% mdlInitializeSizes</span>
+<span class="comment">% Return the sizes, initial conditions, and sample times for the S-function.</span>
+<span class="comment">%=============================================================================</span>
+<span class="comment">%</span>
+<span class="keyword">function</span> [sys,x0,str,ts,simStateCompliance] = mdlInitializeSizes()
+
+sizes = simsizes;
+sizes.NumContStates  = 0;
+sizes.NumDiscStates  = 0;
+sizes.NumOutputs     = 4;
+sizes.NumInputs      = 16;
+sizes.DirFeedthrough = 1;   <span class="comment">% has direct feedthrough</span>
+sizes.NumSampleTimes = 1;
+
+sys = simsizes(sizes);
+str = [];
+x0  = [];
+ts  = [-1 0];   <span class="comment">% inherited sample time</span>
+
+<span class="comment">% specify that the simState for this s-function is same as the default</span>
+simStateCompliance = <span class="string">'DefaultSimState'</span>;
+
+<span class="comment">% end mdlInitializeSizes</span>
+
+<span class="comment">%</span>
+<span class="comment">%=============================================================================</span>
+<span class="comment">% mdlOutputs</span>
+<span class="comment">% Return the output vector for the S-function</span>
+<span class="comment">%=============================================================================</span>
+<span class="comment">%</span>
+<span class="keyword">function</span> sys = mdlOutputs(t,x,u,parmodel,parcontroller)
+</pre><h2 id="3">parse input and constants also defined in parcontroller</h2><pre class="codeinput">kpsi       = parcontroller.kpsi; <span class="comment">% gain for psi control</span>
+ktauxy     = parcontroller.ktauxy; <span class="comment">% gain for rz control</span>
+MomInertia = parmodel.MomInertia;
+mass       = parmodel.mass;
+satT       = parcontroller.satT;
+aref       = u(1:3);
+Psiref     = u(4);
+rx         = u(5:7);
+ry         = u(8:10);
+rz         = u(11:13);
+w           = u(14:16);
+</pre><h2 id="4">control law for the torque \tau and thurst T</h2><pre class="codeinput">[negpsi,~,~] = dcm2angle( [rx ry rz], <span class="string">'ZYX'</span> ); psi = -negpsi;
+<span class="comment">% [psi,theta,phi] = dcm2angle( rotx(0)*roty(30)*rotz(45), 'ZYX' ) gives negative angles</span>
+<span class="comment">% R = angle2dcm(psi,theta,phi,'ZYX')</span>
+
+wxref = -ry'*aref;
+wyref = rx'*aref;
+wzref = (Psiref-psi);
+
+tauxy = ktauxy*MomInertia(1:2,1:2)*([wxref wyref]'-w(1:2));
+taupsi = kpsi*MomInertia(3,3)*(wzref-w(3));
+tau = [tauxy;taupsi];
+
+tau_ = tau +[0 -w(3) w(2);
+                              w(3) 0 -w(1);
+                             -w(2) w(1) 0]*(MomInertia*w) ;
+T_ = mass*norm(aref,2);
+
+Tlowerlimit = satT; <span class="comment">% saturation</span>
+<span class="keyword">if</span> T_ &gt; Tlowerlimit
+     T = T_;
+<span class="keyword">else</span>
+    T = Tlowerlimit;
+<span class="keyword">end</span>
+
+<span class="comment">% output</span>
+sys = [T_; tau_];
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Low level control of the quad, using a geometrically inspired control technique.
+% S-Function to control the thurst vector and the psi angle
+% It requires as input the desired accelerations coming from an outer loop controller, 
+% the rotation matrix representing the attitute of the quad and the angular velocity. 
+% It tries to track these desired accelerations by controlling the quad's thurst vector.
+%
+% Input arguments:
+% u such that
+% aref       = u(1:3);
+% Psiref     = u(4);
+% rx         = u(5:7);
+% ry         = u(8:10);
+% rz         = u(11:13);
+% w           = u(14:16);
+% where R = [rx ry rz] is the rotation matrix
+%
+% Output arguments
+% control input u = [T \tau_\phi \tau_\theta \tau_\psi]
+
+%% S-Function definition
+function [sys,x0,str,ts,simStateCompliance] = LowLevelGeometricController(t,x,u,flag,parmodel,parcontroller)
+
+switch flag,
+  %%%%%%%%%%%%%%%%%%
+  % Initialization %
+  %%%%%%%%%%%%%%%%%%
+  % Initialize the states, sample times, and state ordering strings.
+  case 0
+    [sys,x0,str,ts,simStateCompliance]=mdlInitializeSizes;
+
+  %%%%%%%%%%%
+  % Outputs %
+  %%%%%%%%%%%
+  % Return the outputs of the S-function block.
+  case 3
+    sys=mdlOutputs(t,x,u,parmodel,parcontroller);
+
+  %%%%%%%%%%%%%%%%%%%
+  % Unhandled flags %
+  %%%%%%%%%%%%%%%%%%%
+  % There are no termination tasks (flag=9) to be handled.
+  % Also, there are no continuous or discrete states,
+  % so flags 1,2, and 4 are not used, so return an empty
+  % matrix 
+  case { 1, 2, 4, 9 }
+    sys=[];
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % Unexpected flags (error handling)%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % Return an error message for unhandled flag values.
+  otherwise
+    DAStudio.error('Simulink:blocks:unhandledFlag', num2str(flag));
+
+end
+
+% end timestwo
+
+%
+%=============================================================================
+% mdlInitializeSizes
+% Return the sizes, initial conditions, and sample times for the S-function.
+%=============================================================================
+%
+function [sys,x0,str,ts,simStateCompliance] = mdlInitializeSizes()
+
+sizes = simsizes;
+sizes.NumContStates  = 0;
+sizes.NumDiscStates  = 0;
+sizes.NumOutputs     = 4;  
+sizes.NumInputs      = 16;  
+sizes.DirFeedthrough = 1;   % has direct feedthrough
+sizes.NumSampleTimes = 1;
+
+sys = simsizes(sizes);
+str = [];
+x0  = [];
+ts  = [-1 0];   % inherited sample time
+
+% specify that the simState for this s-function is same as the default
+simStateCompliance = 'DefaultSimState';
+
+% end mdlInitializeSizes
+
+%
+%=============================================================================
+% mdlOutputs
+% Return the output vector for the S-function
+%=============================================================================
+%
+function sys = mdlOutputs(t,x,u,parmodel,parcontroller)
+
+%% parse input and constants also defined in parcontroller
+kpsi       = parcontroller.kpsi; % gain for psi control
+ktauxy     = parcontroller.ktauxy; % gain for rz control
+MomInertia = parmodel.MomInertia;
+mass       = parmodel.mass;
+satT       = parcontroller.satT;
+aref       = u(1:3);
+Psiref     = u(4);
+rx         = u(5:7);
+ry         = u(8:10);
+rz         = u(11:13);
+w           = u(14:16);
+
+%% control law for the torque \tau and thurst T
+[negpsi,~,~] = dcm2angle( [rx ry rz], 'ZYX' ); psi = -negpsi;
+% [psi,theta,phi] = dcm2angle( rotx(0)*roty(30)*rotz(45), 'ZYX' ) gives negative angles
+% R = angle2dcm(psi,theta,phi,'ZYX')
+
+wxref = -ry'*aref;
+wyref = rx'*aref;
+wzref = (Psiref-psi);
+
+tauxy = ktauxy*MomInertia(1:2,1:2)*([wxref wyref]'-w(1:2));
+taupsi = kpsi*MomInertia(3,3)*(wzref-w(3));
+tau = [tauxy;taupsi];
+
+tau_ = tau +[0 -w(3) w(2); 
+                              w(3) 0 -w(1);
+                             -w(2) w(1) 0]*(MomInertia*w) ;
+T_ = mass*norm(aref,2);   
+
+Tlowerlimit = satT; % saturation
+if T_ > Tlowerlimit
+     T = T_;
+else
+    T = Tlowerlimit;
+end
+
+% output
+sys = [T_; tau_];
+
+
+
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,335 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Define the trajectory by clicking (x,y) coordinates</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-10-02"><meta name="DC.source" content="clicks2traj.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Define the trajectory by clicking (x,y) coordinates</h1><!--introduction--><p>Using Matlab built in function getpts.m it starts by asking the user to introduce some points on the image, which for convinience if the image of the soccer field: these points can directly be used by the simulation with the soccer field environment. Click once for introducing points and twice for the final point. This defines the x, and y coordinates. The z and psi coordinates as well as the times at which the drone should reach each way point are defined automatically or can be customized by the user. Many control options allow the user to define this as well as using previously clicked points. After this, it runs the initscript</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">options</a></li><li><a href="#2">obtain the way points</a></li><li><a href="#3">from the way points, generate trajectory</a></li><li><a href="#4">plot</a></li><li><a href="#5">T format for simulation and run initscript</a></li></ul></div><h2 id="1">options</h2><pre class="codeinput">clear <span class="string">all</span>, close <span class="string">all</span>
+
+optconstantspeed = 1;  <span class="comment">% 1- approx constant speed, 2 - customize times between way points</span>
+speed = 1;             <span class="comment">% if optconsspeed == 1 this is the velocity</span>
+
+optconstanheight = 2;  <span class="comment">% 1- height is constant, 2 - customize height</span>
+height = 1;            <span class="comment">% if optconstanheight = 1; this is the height</span>
+
+optconstantyaw    = 2; <span class="comment">% 1- yaw is zero, 2 - customize yaw</span>
+
+optloadwaypoints = 2;  <span class="comment">% 1- load previously obtained way points px, py in waypoints.mat</span>
+optsavewaypoints = 1;  <span class="comment">% 1- save the new way points in waypoints.mat, 2 do not save</span>
+
+optsaveT = 1;          <span class="comment">% 1- save the trajectory to T.mat, 2 do not save</span>
+
+optplot = 1;           <span class="comment">% 1- plot resulting trajectory, 2 - do not plot</span>
+<span class="comment">% -------------------------------------------------------------------------</span>
+
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><h2 id="2">obtain the way points</h2><pre class="codeinput"><span class="keyword">if</span> optloadwaypoints == 1
+    load <span class="string">waypoints</span>
+<span class="keyword">else</span>
+    imshow <span class="string">'./Aux/soccerfieldpic.jpg'</span>
+    [xi,yi] = getpts;
+    centersoccerfieldpic = [346 281]; <span class="comment">% pixels</span>
+    lengthsoccerfield = [8 10] <span class="comment">%meters</span>
+    p = [ -lengthsoccerfield(1)/2*(yi-centersoccerfieldpic(2))/centersoccerfieldpic(2) lengthsoccerfield(2)/2*(xi-centersoccerfieldpic(1))/centersoccerfieldpic(2)]; <span class="comment">% centerin, scaling, and siwtch axis</span>
+    px = p(:,1);
+    py = p(:,2);
+    <span class="keyword">if</span> optsavewaypoints == 1
+        save <span class="string">waypoints</span> <span class="string">px</span> <span class="string">py</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> optconstanheight == 1
+    pz = -height*ones(size(px)); <span class="comment">% -1 due to convention</span>
+<span class="keyword">else</span>
+    pz = -ones(size(px));
+    pz(1) = -2; pz(2) = -3; <span class="comment">% customize here</span>
+<span class="keyword">end</span>
+N = length(px);
+Tp(1) = 0;
+P = [px';py';pz'];
+<span class="keyword">if</span> optconstantspeed == 1
+    epsilon = 0.01;
+    <span class="keyword">for</span> i = 2:N
+        <span class="comment">% if two points are two close, spend epsilon sec</span>
+        Tp(i) = Tp(i-1)+max(norm(P(:,i)-P(:,i-1))/speed,epsilon);
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    <span class="comment">% custom T</span>
+    Tp = 0:N-1; <span class="comment">% customize here</span>
+<span class="keyword">end</span>
+<span class="keyword">if</span> optconstantyaw == 1
+    psi = zeros(1,N);
+<span class="keyword">else</span>
+    psi = zeros(1,N);
+    psi(3) = pi/4; <span class="comment">% customize yaw</span>
+    psi(4) = -pi/4;
+    psi(5) = pi/4;
+<span class="keyword">end</span>
+<span class="comment">% -------------------------------------------------------------------------</span>
+
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><h2 id="3">from the way points, generate trajectory</h2><pre class="codeinput">pth  = 3;
+rho = 0.001;
+alpha = 1;
+m = 4; <span class="comment">% larger than 2</span>
+N12 = 10;
+tau = 0.1;
+X0 = [P(:,1) speed*(P(:,2)-P(:,1))/Tp(2) zeros(3,m-2)];
+[xix,xiy,xiz]  = lqrtrajgeneration(P,Tp,X0,rho,tau,N12);
+
+Ppsi = [psi;zeros(size(psi));zeros(size(psi))];
+PSI0 = [Ppsi(:,1) (Ppsi(:,2)-Ppsi(:,1))/Tp(2) zeros(3,m-2)];
+[xipsi,~,~]  = lqrtrajgeneration(Ppsi,Tp,PSI0,rho,tau,N12);
+<span class="comment">% -------------------------------------------------------------------------</span>
+
+
+
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><h2 id="4">plot</h2><pre class="codeinput"><span class="keyword">if</span> optplot == 1
+    plot3(P(1,:),P(2,:),P(3,:))
+    hold <span class="string">on</span>
+    plot3(xix(1,:),xiy(1,:),xiz(1,:))
+    axis <span class="string">equal</span>
+    grid <span class="string">on</span>
+    xlabel(<span class="string">'x'</span>)
+    ylabel(<span class="string">'y'</span>)
+    zlabel(<span class="string">'z'</span>)
+    set(gca, <span class="string">'ZDir'</span>,<span class="string">'reverse'</span>)
+    set(gca, <span class="string">'YDir'</span>,<span class="string">'reverse'</span>)
+    view(-70,40)
+    Xsf = [lengthsoccerfield(1)/2 lengthsoccerfield(1)/2 -lengthsoccerfield(1)/2 -lengthsoccerfield(1)/2];
+    Ysf = [lengthsoccerfield(2)/2 -lengthsoccerfield(2)/2 -lengthsoccerfield(2)/2  lengthsoccerfield(2)/2];
+    patch(Xsf,Ysf,[0 0 0 0],[0.1 1 0.1])
+<span class="keyword">end</span>
+delta = 0.1;
+axis( [-lengthsoccerfield(1)/2+delta lengthsoccerfield(1)/2+delta -lengthsoccerfield(2)/2+delta lengthsoccerfield(2)/2+delta -3 +delta])
+<span class="comment">% -------------------------------------------------------------------------</span>
+
+
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><h2 id="5">T format for simulation and run initscript</h2><pre class="codeinput">tau    = 0.01;
+T.X    = xix(1,:);             <span class="comment">% X  reference</span>
+T.Y    = xiy(1,:);             <span class="comment">% Y  reference</span>
+T.Z    = xiz(1,:);             <span class="comment">% Z  reference</span>
+T.PSI  = xipsi(1,:);           <span class="comment">% yaw reference</span>
+T.VX   = xix(2,:);             <span class="comment">% x velocity reference</span>
+T.VY   = xiy(2,:);             <span class="comment">% y velocity reference</span>
+T.VZ   = xiz(2,:);             <span class="comment">% z velocity reference</span>
+T.VPSI = xipsi(2,:);           <span class="comment">% yaw velocity reference</span>
+T.AX   = xix(3,:);             <span class="comment">% x acceleration reference</span>
+T.AY   = xiy(3,:);             <span class="comment">% y acceleration reference</span>
+T.AZ   = xiz(3,:);             <span class="comment">% z acceleration reference</span>
+T.APSI = xipsi(3,:);           <span class="comment">% yaw acceleration reference</span>
+T.time = (1:size(T.X,2))*tau;  <span class="comment">% discrete-time</span>
+T.period = tau;                <span class="comment">% sampling period</span>
+<span class="keyword">if</span> optsaveT == 1
+    save <span class="string">T</span> <span class="string">T</span>
+<span class="keyword">end</span>
+initscript
+<span class="comment">% -------------------------------------------------------------------------</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Define the trajectory by clicking (x,y) coordinates
+%
+% Using Matlab built in function getpts.m it starts by asking the user to 
+% introduce some points on the image, which for convinience if the image of
+% the soccer field: these points can directly be used by the simulation with
+% the soccer field environment. Click once for introducing points and twice 
+% for the final point. This defines the x, and y coordinates. The z and psi 
+% coordinates as well as the times at which the drone should reach each way 
+% point are defined automatically or can be customized by the user. Many control 
+% options allow the user to define this as well as using previously clicked points.
+% After this, it runs the initscript
+
+%% options  
+clear all, close all
+
+optconstantspeed = 1;  % 1- approx constant speed, 2 - customize times between way points
+speed = 1;             % if optconsspeed == 1 this is the velocity
+
+optconstanheight = 2;  % 1- height is constant, 2 - customize height
+height = 1;            % if optconstanheight = 1; this is the height
+
+optconstantyaw    = 2; % 1- yaw is zero, 2 - customize yaw
+
+optloadwaypoints = 2;  % 1- load previously obtained way points px, py in waypoints.mat
+optsavewaypoints = 1;  % 1- save the new way points in waypoints.mat, 2 do not save
+
+optsaveT = 1;          % 1- save the trajectory to T.mat, 2 do not save
+
+optplot = 1;           % 1- plot resulting trajectory, 2 - do not plot
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% obtain the way points
+if optloadwaypoints == 1
+    load waypoints
+else
+    imshow './Aux/soccerfieldpic.jpg'
+    [xi,yi] = getpts;
+    centersoccerfieldpic = [346 281]; % pixels
+    lengthsoccerfield = [8 10] %meters
+    p = [ -lengthsoccerfield(1)/2*(yi-centersoccerfieldpic(2))/centersoccerfieldpic(2) lengthsoccerfield(2)/2*(xi-centersoccerfieldpic(1))/centersoccerfieldpic(2)]; % centerin, scaling, and siwtch axis 
+    px = p(:,1);
+    py = p(:,2);
+    if optsavewaypoints == 1
+        save waypoints px py
+    end
+end
+if optconstanheight == 1
+    pz = -height*ones(size(px)); % -1 due to convention
+else
+    pz = -ones(size(px));
+    pz(1) = -2; pz(2) = -3; % customize here
+end
+N = length(px);
+Tp(1) = 0;
+P = [px';py';pz'];
+if optconstantspeed == 1
+    epsilon = 0.01;
+    for i = 2:N
+        % if two points are two close, spend epsilon sec
+        Tp(i) = Tp(i-1)+max(norm(P(:,i)-P(:,i-1))/speed,epsilon);
+    end
+else
+    % custom T
+    Tp = 0:N-1; % customize here
+end
+if optconstantyaw == 1
+    psi = zeros(1,N);
+else
+    psi = zeros(1,N);
+    psi(3) = pi/4; % customize yaw
+    psi(4) = -pi/4;
+    psi(5) = pi/4;
+end
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% from the way points, generate trajectory
+pth  = 3;
+rho = 0.001;
+alpha = 1;
+m = 4; % larger than 2
+N12 = 10;
+tau = 0.1;
+X0 = [P(:,1) speed*(P(:,2)-P(:,1))/Tp(2) zeros(3,m-2)];
+[xix,xiy,xiz]  = lqrtrajgeneration(P,Tp,X0,rho,tau,N12);
+
+Ppsi = [psi;zeros(size(psi));zeros(size(psi))];
+PSI0 = [Ppsi(:,1) (Ppsi(:,2)-Ppsi(:,1))/Tp(2) zeros(3,m-2)];
+[xipsi,~,~]  = lqrtrajgeneration(Ppsi,Tp,PSI0,rho,tau,N12);
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% plot 
+if optplot == 1
+    plot3(P(1,:),P(2,:),P(3,:))
+    hold on
+    plot3(xix(1,:),xiy(1,:),xiz(1,:))
+    axis equal
+    grid on
+    xlabel('x')
+    ylabel('y')
+    zlabel('z')
+    set(gca, 'ZDir','reverse')
+    set(gca, 'YDir','reverse')
+    view(-70,40)
+    Xsf = [lengthsoccerfield(1)/2 lengthsoccerfield(1)/2 -lengthsoccerfield(1)/2 -lengthsoccerfield(1)/2];
+    Ysf = [lengthsoccerfield(2)/2 -lengthsoccerfield(2)/2 -lengthsoccerfield(2)/2  lengthsoccerfield(2)/2];
+    patch(Xsf,Ysf,[0 0 0 0],[0.1 1 0.1])
+end
+delta = 0.1;
+axis( [-lengthsoccerfield(1)/2+delta lengthsoccerfield(1)/2+delta -lengthsoccerfield(2)/2+delta lengthsoccerfield(2)/2+delta -3 +delta])
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% T format for simulation and run initscript
+tau    = 0.01;    
+T.X    = xix(1,:);             % X  reference
+T.Y    = xiy(1,:);             % Y  reference
+T.Z    = xiz(1,:);             % Z  reference
+T.PSI  = xipsi(1,:);           % yaw reference
+T.VX   = xix(2,:);             % x velocity reference
+T.VY   = xiy(2,:);             % y velocity reference
+T.VZ   = xiz(2,:);             % z velocity reference
+T.VPSI = xipsi(2,:);           % yaw velocity reference
+T.AX   = xix(3,:);             % x acceleration reference
+T.AY   = xiy(3,:);             % y acceleration reference
+T.AZ   = xiz(3,:);             % z acceleration reference
+T.APSI = xipsi(3,:);           % yaw acceleration reference
+T.time = (1:size(T.X,2))*tau;  % discrete-time
+T.period = tau;                % sampling period
+if optsaveT == 1
+    save T T
+end
+initscript
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+
+##### SOURCE END #####
+--></body></html>
