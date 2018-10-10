@@ -50,7 +50,7 @@ else
 end
 
 if option.constantheight == true
-    pz = -height*ones(size(px)); % -1 due to convention
+    pz = -height*ones(size(px)); % Negative due to convention
 else
     pz = -ones(size(px));
     pz(1) = -2; pz(2) = -3; % Customize here
