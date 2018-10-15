@@ -1,4 +1,4 @@
-<img src="http://fireflyeindhoven.nl/wp-content/uploads/2017/06/cropped-Artboard-1-2.png" width="50%">
+<img src="http://fireflyeindhoven.nl/wp-content/uploads/2017/06/cropped-Artboard-1-2.png" width="30%">
 
 The Github repository for Firefly.
 
