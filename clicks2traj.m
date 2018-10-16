@@ -36,7 +36,7 @@ N12 = 10;                      % Ratio of input sampling period over output samp
 
 %% Obtain the way points
 if option.loadwaypoints
-    load waypoints;
+    load('./mat/waypoints');
 else
     imshow './_Aux/soccerfieldpic.jpg'
     [xi,yi] = getpts;
@@ -45,7 +45,7 @@ else
     py = p(:,2);
     
     if option.savewaypoints
-        save waypoints px py;
+        save('./mat/waypoints', 'px', 'py');
     end
 end
 
@@ -127,7 +127,7 @@ T.period = tau;                % Sampling period
 
 % Save inside T.mat
 if option.saveT
-    save T T;
+    save('./mat/T', 'T');
 end
 
 initscript;

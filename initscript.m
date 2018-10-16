@@ -6,8 +6,8 @@
 % trajectory is already in T.m.
 
 %% Load trajectory and LED-data
-load T;
-load LEDdata;
+load('./mat/T');
+load('./mat/LEDdata');
 
 %% Simulation parameters
 simTime = floor(length(T.X(1,:))/T.period);
