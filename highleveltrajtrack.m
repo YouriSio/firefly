@@ -69,7 +69,7 @@ end
 % Returns the updated state for the S-function
 %=============================================================================
 
-function sys = mdlUpdate(t,x,u)
+function sys = mdlUpdate(t,x,u)  %#ok<INUSD>
     sys = [];
 end
 
@@ -78,11 +78,10 @@ end
 % Return the output vector for the S-function
 %=============================================================================
 
-function sys = mdlOutputs(t,x,u,T,ParameterController)
+function sys = mdlOutputs(t,x,u,T,ParameterController)   %#ok<INUSL>
    
     k1 = ParameterController.k1; %Velocity gain
     k2 = ParameterController.k2; %Position D
-    k3 = ParameterController.k3; %Position P
 
     %% Gather input and state 
    
