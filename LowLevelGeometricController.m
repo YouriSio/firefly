@@ -1,8 +1,9 @@
 %% Low level control of the quad, using a geometrically inspired control technique.
-% S-Function to control the thurst vector and the psi angle
-% It requires as input the desired accelerations coming from an outer loop controller, 
-% the rotation matrix representing the attitute of the quad and the angular velocity. 
-% It tries to track these desired accelerations by controlling the quad's thurst vector.
+% S-Function to control the thrust vector and the psi angle. It requires as
+% input the desired accelerations coming from an outer loop controller, the 
+% rotation matrix representing the attitute of the quad and the angular 
+% velocity. It tries to track these desired accelerations by controlling 
+% the quad's thurst vector.
 %
 % Input arguments:
 % u such that
@@ -11,7 +12,7 @@
 % rx         = u(5:7);
 % ry         = u(8:10);
 % rz         = u(11:13);
-% w           = u(14:16);
+% w          = u(14:16);
 % where R = [rx ry rz] is the rotation matrix
 %
 % Output arguments
