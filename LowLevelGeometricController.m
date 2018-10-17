@@ -57,7 +57,7 @@ function sys = mdlOutputs(t,x,u,parmodel,parcontroller)
     ktauxy      = parcontroller.ktauxy; % Gain for rz control
     mom_inertia = parmodel.MomInertia;
     mass        = parmodel.mass;
-    satT        = parcontroller.satT;
+    thrust_sat  = parcontroller.thrust_sat;
     a_ref       = u(1:3);
     psi_ref     = u(4);
     rx          = u(5:7);
@@ -80,7 +80,7 @@ function sys = mdlOutputs(t,x,u,parmodel,parcontroller)
     tau_ = tau + [0 -w(3) w(2); w(3) 0 -w(1); -w(2) w(1) 0]*(mom_inertia * w);
     T_ = mass * norm(a_ref,2);
 
-    T_lower_limit = satT;
+    T_lower_limit = thrust_sat;
     if T_ > T_lower_limit
         T = T_;
     else

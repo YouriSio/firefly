@@ -26,5 +26,7 @@ parcontroller.k2          = 1.5;  % Position D high level trajectory tracking
 parcontroller.k3          = 0.6;  % Position P high level trajectory tracking
 parcontroller.kpsi        = 3;    % Gain for psi control low level control
 parcontroller.ktauxy      = 100;  % Gain for rz control low level control
-parcontroller.satT        = 0.1;  % Thrust saturation sat
 parcontroller.feedforward = true; % Set feed forward
+
+parcontroller.thrust_sat       = 0.1; % Define the minimal thrust
+parcontroller.acceleration_sat = 10;  % Define the maximal absolute desired acceleration

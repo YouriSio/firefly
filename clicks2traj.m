@@ -73,10 +73,7 @@ end
 if option.constantyaw
     psi = zeros(1,N);
 else
-    psi = zeros(1,N);
-    psi(3) = pi/4; % Customize yaw
-    psi(4) = -pi/4;
-    psi(5) = pi/4;
+    psi = rand(1,N) * 2 * pi;
 end
 
 %% Generate trajectory from the way points

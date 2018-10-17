@@ -64,8 +64,13 @@ function [xix,xiy,xiz] = lqrtrajgeneration(P,T,X0,rho,tau1,N12)
     end
 
     %% Obtain optimal control inputs
-    rkx = rk(1,:); rky = rk(2,:); rkz = rk(3,:);
-    x0x = X0(1,:); x0y = X0(2,:); x0z = X0(3,:);
+    rkx = rk(1,:); 
+    rky = rk(2,:); 
+    rkz = rk(3,:);
+    
+    x0x = X0(1,:); 
+    x0y = X0(2,:); 
+    x0z = X0(3,:);
     
     [ux] = lqrpreview(A,B,M,R,rkx,x0x);
     [uy] = lqrpreview(A,B,M,R,rky,x0y);
