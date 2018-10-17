@@ -27,10 +27,13 @@ function [sys,x0,str,ts,simStateCompliance] = highleveltrajtrack(t,x,u,flag, T,P
         case 0
             [sys,x0,str,ts,simStateCompliance]=mdlInitializeSizes(T);
             
+        case 2
+            sys=mdlUpdate(t,x,u);
+            
         case 3
             sys=mdlOutputs(t,x,u,T,ParameterController);
             
-        case {1, 2, 4, 9} % No discrete states, so 1,4 and 9 not used.
+        case {1, 4, 9} % No discrete states, so 1,4 and 9 not used.
             sys = [];
             
         otherwise
@@ -38,7 +41,12 @@ function [sys,x0,str,ts,simStateCompliance] = highleveltrajtrack(t,x,u,flag, T,P
     end
 end
 
-%% Return the sizes, initial conditions, and sample times for the S-function.
+
+%=============================================================================
+% mdlInitializeSizes
+% Return the sizes, initial conditions, and sample times for the S-function.
+%=============================================================================
+
 function [sys,x0,str,ts,simStateCompliance] = mdlInitializeSizes(T)
     sizes = simsizes;
     sizes.NumContStates  = 0;
@@ -55,50 +63,69 @@ function [sys,x0,str,ts,simStateCompliance] = mdlInitializeSizes(T)
     simStateCompliance = 'DefaultSimState';
 end
 
-%% Return the output vector for the S-function
-function sys = mdlOutputs(~,~,u,T,ParameterController)
-    k1 = ParameterController.k1; % Velocity gain
-    k2 = ParameterController.k2; % Position D
 
-    % Gather input and state 
-    x    = u(1);
-    y    = u(2);
-    z    = u(3);
-    psi  = u(4);
-    vx   = u(5);
-    vy   = u(6);
-    vz   = u(7);
-    vpsi = u(8);
-    t    = u(9);
+%=============================================================================
+% mdlUpdate
+% Returns the updated state for the S-function
+%=============================================================================
 
-    % PD law with or without feedforward
-    indt = min(max(floor(t/T.period),1),size(T.X,2));
+function sys = mdlUpdate(t,x,u)  %#ok<INUSD>
+    sys = [];
+end
+
+%=============================================================================
+% mdlOutputs
+% Return the output vector for the S-function
+%=============================================================================
+
+function sys = mdlOutputs(t,x,u,T,ParameterController)   %#ok<INUSL>
+   
+    k1 = ParameterController.k1; %Velocity gain
+    k2 = ParameterController.k2; %Position D
+
+    %% Gather input and state 
+   
+    X_World = u(1);
+    Y_World = u(2);
+    Z_World = u(3);
+    Psi_World = u(4);
+    Vx_World= u(5);
+    Vy_World = u(6);
+    Vz_World = u(7);
+    Vpsi_World = u(8);
+    t = u(9); %time
+
+    % -------------------------------------------------------------------------
+    %% PD law with or without feedforward
     
-    x_des    = T.X(indt);
-    y_des    = T.Y(indt);
-    z_des    = T.Z(indt);
-    psi_des  = T.PSI(indt);
-    vx_des   = T.VX(indt);
-    vy_des   = T.VY(indt);
-    fz_des   = T.VZ(indt);
-    vpsi_des = T.VPSI(indt);
-    ax_des   = T.AX(indt);
-    ay_des   = T.AY(indt);
-    az_des   = T.AZ(indt);
-    apsi_des = T.APSI(indt);
+    indt = min(max(floor(t/T.period),1),size(T.X,2));
+    Xdes = T.X(indt);
+    Ydes = T.Y(indt);
+    Zdes = T.Z(indt);
+    Psides = T.PSI(indt);
+    Vxdes = T.VX(indt);
+    Vydes = T.VY(indt);
+    Vzdes = T.VZ(indt);
+    Vpsides = T.VPSI(indt);
+    Axdes = T.AX(indt);
+    Aydes = T.AY(indt);
+    Azdes = T.AZ(indt);
+    Apsides = T.APSI(indt);
     
     if ParameterController.feedforward == 1
-        ax   = k1*(x_des - x) + k2*(vx_des - vx) + ax_des;
-        ay   = k1*(y_des - y) + k2*(vy_des - vy) + ay_des;
-        az   = k1*(z_des - z) + k2*(fz_des - vz) + az_des;
-        apsi = k1*(psi_des - psi) + k2*(vpsi_des-vpsi) + apsi_des;
+        Ax    = k1*(Xdes - X_World) + k2*(Vxdes-Vx_World) + Axdes;
+        Ay    = k1*(Ydes - Y_World) + k2*(Vydes-Vy_World) + Aydes;
+        Az    = k1*(Zdes - Z_World) + k2*(Vzdes-Vz_World) + Azdes;
+        Apsi  = k1*(Psides - Psi_World) + k2*(Vpsides-Vpsi_World) + Apsides;
     else
-        ax   = k1*(x_des - x) + k2*(-vx);
-        ay   = k1*(y_des - y) + k2*(-vy);
-        az   = k1*(z_des - z) + k2*(-vz);
-        apsi = k1*(psi_des - psi) + k2*(-vpsi);
+        Ax    = k1*(Xdes - X_World) + k2*(-Vx_World);
+        Ay    = k1*(Ydes - Y_World) + k2*(-Vy_World);
+        Az    = k1*(Zdes - Z_World) + k2*(-Vz_World);
+        Apsi  = k1*(Psides - Psi_World) + k2*(-Vpsi_World);
     end
 
-    % Output
-    sys = [ax; ay; az; apsi];
+    %% Output
+    sys = [Ax;Ay;Az;Apsi];
+    % -------------------------------------------------------------------------
 end 
+

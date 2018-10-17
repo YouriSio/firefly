@@ -16,16 +16,16 @@ close all;
 clc;
 
 %% Options
-option.constantspeed  = true;  % Defines if the drone will follow a constant speed
-option.constantheight = false; % Defines if the drone will follow a constant height, otherwise random
-option.constantyaw    = false;  % Defines if the drone will have a constant yaw
+option.constantspeed  = false;  % Defines if the drone will follow a constant speed
+option.constantheight = false;  % Defines if the drone will follow a constant height
+option.constantyaw    = true;  % Defines if the drone will have a constant yaw
 option.loadwaypoints  = false; % Defines if the trajectory will be loaded from waypoints.mat
 option.savewaypoints  = true;  % Defines if the trajectory will be saved to waypoints.mat
 option.saveT          = true;  % Defines if the trajectory will be saved to T.mat
 option.plot           = true;  % Defines if the resulting trajectory will be plotted
 
 %% Constants
-speed = 3;                     % Will be used if constantspeed is true
+speed = 1;                     % Will be used if constantspeed is true
 height = 1;                    % WIll be used if constantheight is true
 field_center = [346 281];      % Center of the soccerfield image in pixels
 field_dim = [8 10];            % Length of the soccerfield in meters
@@ -39,7 +39,7 @@ if option.loadwaypoints
     load('./mat/waypoints');
 else
     imshow './_Aux/soccerfieldpic.jpg'
-    [xi, yi] = getpts;
+    [xi,yi] = getpts;
     p = [ -field_dim(1)/2*(yi-field_center(2))/field_center(2) field_dim(2)/2*(xi-field_center(1))/field_center(2)]; 
     px = p(:,1);
     py = p(:,2);
@@ -52,7 +52,8 @@ end
 if option.constantheight
     pz = -height*ones(size(px)); % Negative due to convention
 else
-    pz = -rand(size(px)) * 3;
+    pz = -ones(size(px));
+    pz(1) = -50; pz(2) = 0; % Customize here
 end
 
 N = length(px);
