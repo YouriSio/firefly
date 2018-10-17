@@ -17,7 +17,8 @@ parmodel.MomInertia = diag([0.002 0.002 0.004]);                % moment of iner
 parmodel.mass       = 0.5;                                      % mass [kg]
 parmodel.g          = 9.81;                                     % gravity [m/s^2]
 parmodel.pose0      = [T.X(1,1) T.Y(1,1) T.Z(1,1) T.PSI(1,1)];  % initial quad position and yaw
-parmodel.cdrag      = 0.1;                                      % drag coefficient [-]
+parmodel.cfdrag     = 0.1;                                      % drag coefficient [-]
+parmodel.cmdrag     = 0.0;                                      % rotation drag coefficient [-]
 
 %% Parameters for the controller
 parcontroller.k1          = 1.5; % Velocity gain high level trajectory tracking
