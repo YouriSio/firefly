@@ -18,7 +18,7 @@ clc;
 %% Options
 option.constantspeed  = true;  % Defines if the drone will follow a constant speed
 option.constantheight = true;  % Defines if the drone will follow a constant height
-option.constantyaw    = true;  % Defines if the drone will have a constan yaw
+option.constantyaw    = true;  % Defines if the drone will have a constant yaw
 option.loadwaypoints  = false; % Defines if the trajectory will be loaded from waypoints.mat
 option.savewaypoints  = true;  % Defines if the trajectory will be saved to waypoints.mat
 option.saveT          = true;  % Defines if the trajectory will be saved to T.mat
@@ -129,5 +129,5 @@ T.period = tau;                % Sampling period
 if option.saveT
     save('./mat/T', 'T');
 end
-
+%Run initscript
 initscript;
