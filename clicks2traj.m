@@ -25,7 +25,7 @@ option.saveT          = true;  % Defines if the trajectory will be saved to T.ma
 option.plot           = true;  % Defines if the resulting trajectory will be plotted
 
 %% Constants
-speed = 1;                     % Will be used if constantspeed is true
+speed = 2;                     % Will be used if constantspeed is true
 height = 1;                    % WIll be used if constantheight is true
 field_center = [346 281];      % Center of the soccerfield image in pixels
 field_dim = [8 10];            % Length of the soccerfield in meters
