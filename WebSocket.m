@@ -37,7 +37,7 @@ classdef WebSocket < WebSocketServer
             psi  = coords(:,5);             % Yaw reference
             
             save('./mat/waypoints', 'time', 'px', 'py', 'pz', 'psi');
-            run('clicks2traj.m');
+            clicks2traj;
         end
     end
 end

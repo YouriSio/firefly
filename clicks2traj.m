@@ -20,7 +20,7 @@ option.constantspeed  = true;  % Defines if the drone will follow a constant spe
 option.constantheight = true;  % Defines if the drone will follow a constant height
 option.constantyaw    = true;  % Defines if the drone will have a constant yaw
 option.loadwaypoints  = true; % Defines if the trajectory will be loaded from waypoints.mat
-option.savewaypoints  = true;  % Defines if the trajectory will be saved to waypoints.mat
+option.savewaypoints  = false;  % Defines if the trajectory will be saved to waypoints.mat
 option.saveT          = true;  % Defines if the trajectory will be saved to T.mat
 option.plot           = true;  % Defines if the resulting trajectory will be plotted
 
@@ -121,6 +121,7 @@ T.period = tau;                % Sampling period
 
 % Save inside T.mat
 if option.saveT
+    assignin('base', 'T', T);
     save('./mat/T', 'T');
 end
 %Run initscript

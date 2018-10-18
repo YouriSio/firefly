@@ -27,3 +27,9 @@ parcontroller.kpsi        = 3;   % Gain for psi control low level control
 parcontroller.ktauxy      = 100; % Gain for rz control low level control
 parcontroller.satT        = 0.1; % Thrust saturation sat
 parcontroller.feedforward = 1;   % 1 use feedforward, 0 do not
+
+myVarList=who;
+
+for indVar = 1:length(myVarList)
+    assignin('base', myVarList{indVar}, eval(myVarList{indVar}))
+end
