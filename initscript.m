@@ -28,8 +28,8 @@ parcontroller.ktauxy      = 100; % Gain for rz control low level control
 parcontroller.satT        = 0.1; % Thrust saturation sat
 parcontroller.feedforward = 1;   % 1 use feedforward, 0 do not
 
-myVarList=who;
+variables = who; % get all variable names
 
-for indVar = 1:length(myVarList)
-    assignin('base', myVarList{indVar}, eval(myVarList{indVar}))
+for i = 1:length(variables) % loop through all variables
+    assignin('base', variables{i}, eval(variables{i})) % add every variable to the workspace
 end
