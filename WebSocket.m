@@ -1,6 +1,5 @@
 classdef WebSocket < WebSocketServer
-    %UNTITLED2 Summary of this class goes here
-    %   Detailed explanation goes here
+    %WebSocket opens a websocket and communicates with the clients
     
     properties
         backlog = {}
