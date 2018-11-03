@@ -19,8 +19,8 @@ clc;
 option.constantspeed  = false;  % Defines if the drone will follow a constant speed
 option.constantheight = false;  % Defines if the drone will follow a constant height
 option.constantyaw    = true;  % Defines if the drone will have a constant yaw
-option.loadwaypoints  = false; % Defines if the trajectory will be loaded from waypoints.mat
-option.savewaypoints  = true;  % Defines if the trajectory will be saved to waypoints.mat
+option.loadwaypoints  = true; % Defines if the trajectory will be loaded from waypoints.mat
+option.savewaypoints  = false;  % Defines if the trajectory will be saved to waypoints.mat
 option.saveT          = true;  % Defines if the trajectory will be saved to T.mat
 option.plot           = true;  % Defines if the resulting trajectory will be plotted
 
@@ -68,13 +68,13 @@ if option.constantspeed
         Tp(i) = Tp(i-1)+max(norm(P(:,i)-P(:,i-1))/speed, epsilon);
     end
 else
-    Tp = 0:N-1; % Customize here
+    Tp = time'; % transpose waypoint data to a row
 end
 
 if option.constantyaw
     psi = zeros(1,N);
 else
-    psi = rand(1,N) * 2 * pi;
+    psi = psi'; % transpose waypoint data to a row
 end
 
 %% Generate trajectory from the way points
@@ -124,6 +124,7 @@ T.period = tau;                % Sampling period
 
 % Save inside T.mat
 if option.saveT
+    assignin('base', 'T', T);
     save('./mat/T', 'T');
 end
 %Run initscript
