@@ -23,3 +23,6 @@ MATLAB Toolboxes necessary. Note that when `websocket.m` is ran, it will
 automatically add a `.jar` file to the MATLAB Java static path and restart 
 MATLAB. Furthermore, before running any scripts: open the project. This
 ensures that all `.m` files in subfolders are in the MATLAB path.
+
+**Warning**. Always add/rename/delete files using the Simulink project pane. 
+This ensures that references to the file will be changed everywhere.
