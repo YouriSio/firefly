@@ -18,4 +18,8 @@ Consisting of Thomas, Bram, Endi and Aabharan. Check out their [branch](https://
  - [ ] Simulink should optimize trajectory (don't overshoot points)
 
 #### Installation
-No installation is required besides downloading the repository and the MATLAB Toolboxes necessary. Note that when `websocket.m` is ran, it will automatically add a `.jar` file to the MATLAB Java static path and restart MATLAB.
+No installation is required besides downloading the repository and the 
+MATLAB Toolboxes necessary. Note that when `websocket.m` is ran, it will 
+automatically add a `.jar` file to the MATLAB Java static path and restart 
+MATLAB. Furthermore, before running any scripts: open the project. This
+ensures that all `.m` files in subfolders are in the MATLAB path.
