@@ -8,8 +8,14 @@ The following teams are working in this repository:
 #### Modeling
 Consisting of Thomas, Bram, Endi and Aabharan. Check out their [branch](https://github.com/wagenaartje/Firefly/tree/modeling). To-do:
 
- - [ ] Refresh file saving
+ - [x] Refresh file saving
  - [ ] Clean up file system
+ - [ ] Fix bug in 6-DOF-Euler Angles, crash at 90 degrees
+ - [ ] Fix bug in clicks2traj, only double click results in crash
+ - [ ] Make simulink output actual trajectory
+ - [ ] Make simulink actually predict trajectory
+ - [ ] Make sure drone stops at last point
+ - [ ] Simulink should optimize trajectory (don't overshoot points)
 
 #### Visualisation
 Consisting of Juan and Martijn. Check out their [branch](https://github.com/wagenaartje/Firefly/tree/visualisation). To-do:
