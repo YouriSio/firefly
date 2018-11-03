@@ -14,6 +14,8 @@ Consisting of Thomas, Bram, Endi and Aabharan. Check out their [branch](https://
  - [ ] Fix bug in clicks2traj, only double click results in crash
  - [ ] Make simulink output actual trajectory
  - [ ] Make simulink actually predict trajectory
+ - [ ] Make sure drone stops at last point
+ - [ ] Simulink should optimize trajectory (don't overshoot points)
 
 #### Visualisation
 Consisting of Juan and Martijn. Check out their [branch](https://github.com/wagenaartje/Firefly/tree/visualisation). To-do:
