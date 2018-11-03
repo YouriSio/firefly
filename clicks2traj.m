@@ -16,8 +16,8 @@ close all;
 clc;
 
 %% Options
-option.constantspeed  = true;  % Defines if the drone will follow a constant speed
-option.constantheight = true;  % Defines if the drone will follow a constant height
+option.constantspeed  = false;  % Defines if the drone will follow a constant speed
+option.constantheight = false;  % Defines if the drone will follow a constant height
 option.constantyaw    = true;  % Defines if the drone will have a constant yaw
 option.loadwaypoints  = true; % Defines if the trajectory will be loaded from waypoints.mat
 option.savewaypoints  = false;  % Defines if the trajectory will be saved to waypoints.mat
@@ -51,6 +51,9 @@ end
 
 if option.constantheight
     pz = -height*ones(size(px)); % Negative due to convention
+else
+    pz = -ones(size(px));
+    pz(1) = -50; pz(2) = 0; % Customize here
 end
 
 N = length(px);
