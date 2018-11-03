@@ -17,5 +17,5 @@ Consisting of Thomas, Bram, Endi and Aabharan. Check out their [branch](https://
  - [ ] Make sure drone stops at last point
  - [ ] Simulink should optimize trajectory (don't overshoot points)
 
-#### Visualisation
-Consisting of Juan and Martijn. Check out their [branch](https://github.com/wagenaartje/Firefly/tree/visualisation). To-do:
+#### Installation
+No installation is required besides downloading the repository and the MATLAB Toolboxes necessary. Note that when `websocket.m` is ran, it will automatically add a `.jar` file to the MATLAB Java static path and restart MATLAB.
