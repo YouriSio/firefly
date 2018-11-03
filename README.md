@@ -2,6 +2,10 @@
 
 The Github repository for Firefly.
 
+
+**Warning:. Always add/rename/delete files using the Simulink project pane. 
+This ensures that references to the file will be changed everywhere.**
+
 ## Teams
 The following teams are working in this repository:
 
@@ -9,7 +13,7 @@ The following teams are working in this repository:
 Consisting of Thomas, Bram, Endi and Aabharan. Check out their [branch](https://github.com/wagenaartje/Firefly/tree/modeling). To-do:
 
  - [x] Refresh file saving
- - [ ] Clean up file system
+ - [x] Clean up file system
  - [ ] Fix bug in 6-DOF-Euler Angles, crash at 90 degrees
  - [ ] Fix bug in clicks2traj, only double click results in crash
  - [ ] Make simulink output actual trajectory
@@ -24,5 +28,3 @@ automatically add a `.jar` file to the MATLAB Java static path and restart
 MATLAB. Furthermore, before running any scripts: open the project. This
 ensures that all `.m` files in subfolders are in the MATLAB path.
 
-**Warning**. Always add/rename/delete files using the Simulink project pane. 
-This ensures that references to the file will be changed everywhere.
