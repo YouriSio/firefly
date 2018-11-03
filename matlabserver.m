@@ -1,7 +1,17 @@
-%% Open a websocket for clients to communicate with
-%
-%% Options
+%% Runs a websocket server
 port = 30000;
 
-%% Start the websocket
-server = WebSocket(port);
+% Check if .jar file has been added to the java static path, else install
+try
+    server = WebSocket(port);
+catch ME
+    if (ME.identifier == "MATLAB:UndefinedFunction")
+        % Display warning message
+        warning('Adding matlab-websocket to java static path');
+        
+        % Add .jar file to java static path
+        run(fullfile(pwd, 'matlab-websocket', 'addjartopath.m'));
+    else
+        warning('An unknown error occured');
+    end
+end
