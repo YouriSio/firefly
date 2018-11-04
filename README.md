@@ -31,7 +31,7 @@ ensures that all `.m` files in subfolders are in the MATLAB path.
 1. Download the files
 2. Open `firefly.prj` in MATLAB
 3. Run `m/run.m`
-4. Create trajectory on `https://yourisio.github.io/trajectory-editor/`
+4. Create trajectory on https://yourisio.github.io/trajectory-editor/
 5. Press export
 
 What will happen next is as follows:
