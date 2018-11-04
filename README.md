@@ -18,6 +18,7 @@ This ensures that references to the file will be changed everywhere.**
  - [ ] Optimize actual trajectory to reference trajectory
  - [ ] Implement actual trajectory checks through MSE and collision detection
  - [ ] Pass the actual trajectory and information back to the browser
+ - [ ] Fixe an issue where the drone increases in z-axis when going fast
 
 ## Installation
 No installation is required besides downloading the repository and the 

@@ -4,12 +4,12 @@
 % comparing the actual state with the wanted state through some algorithm.
 
 %% The S-function
-function [sys,x0,str,ts,simStateCompliance] = highleveltrajtrack(t,x,u,flag, reftraj,ParameterController)
+function [sys,x0,str,ts,simStateCompliance] = highleveltrajtrack(t,x,u,flag, reftraj,parcontroller)
     switch flag
         case 0
             [sys,x0,str,ts,simStateCompliance] = mdlInitializeSizes(reftraj);
         case 3
-            sys=mdlOutputs(t,x,u,reftraj,ParameterController);  
+            sys=mdlOutputs(t,x,u,reftraj,parcontroller);  
         case {1, 2, 4, 9} % No discrete states, so 1,4 and 9 not used.
             sys = [];  
         otherwise
@@ -35,9 +35,9 @@ function [sys,x0,str,ts,simStateCompliance] = mdlInitializeSizes(reftraj)
 end
 
 % Return the output vector for the S-function
-function sys = mdlOutputs(~,~,u,reftraj,ParameterController)
-    k1 = ParameterController.k1; %Velocity gain
-    k2 = ParameterController.k2; %Position D
+function sys = mdlOutputs(~,~,u,reftraj,parcontroller)
+    k1 = parcontroller.k1; %Velocity gain
+    k2 = parcontroller.k2; %Position D
 
     % Gather current state
     x_world    = u(1);
@@ -68,7 +68,7 @@ function sys = mdlOutputs(~,~,u,reftraj,ParameterController)
     apsi_des = reftraj.apsi(indt);
     
     % Compute acceleration to reach wanted state
-    if ParameterController.feedforward == 1
+    if parcontroller.feedforward == 1
         ax   = k1*(x_des - x_world) + k2*(vx_des-vx_world) + ax_des;
         ay   = k1*(y_des - y_world) + k2*(vy_des-vy_world) + ay_des;
         az   = k1*(z_des - z_world) + k2*(vz_des-vz_world) + az_des;
@@ -76,7 +76,7 @@ function sys = mdlOutputs(~,~,u,reftraj,ParameterController)
     else
         ax   = k1*(x_des - x_world) + k2*(-vx_world);
         ay   = k1*(y_des - y_world) + k2*(-vy_world);
-        az   = k1*(z_des - z_world) + k2*(-vz_world);
+        az   = k1*(z_des - z_world) + k2*(-vz_world); 
         apsi = k1*(psi_des - psi_world) + k2*(-vpsi_world);
     end
 

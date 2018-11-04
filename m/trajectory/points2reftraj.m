@@ -17,7 +17,7 @@ function [reftraj] = points2reftraj(coords)
     psi  = coords(:,5)'; % Yaw reference
     
     if parcontroller.constantheight
-        pz = -parcontroller.height*ones(size(px'))';
+        pz = parcontroller.height*ones(size(px'))';
     else
         pz = coords(:,4)';
     end

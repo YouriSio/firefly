@@ -65,7 +65,8 @@ function sys = mdlOutputs(t,x,u,parmodel,parcontroller)
     w           = u(14:16);
 
     %% Control law for the torque ? and thurst T
-    [negpsi,~,~] = dcm2angle( [rx ry rz], 'ZYX' ); psi = -negpsi;
+    [negpsi,~,~] = dcm2angle( [rx ry rz], 'ZYX' ); 
+    psi = -negpsi;
 
     wxref = -ry'*a_ref;
     wyref = rx'*a_ref;

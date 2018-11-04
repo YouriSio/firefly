@@ -13,8 +13,8 @@ parmodel.cfdrag     = 0.1;                                      % drag coefficie
 parmodel.cmdrag     = 0.0;                                      % rotation drag coefficient [-]
 
 %% Parameters for the controller
-parcontroller.k1          = 1.5;  % Velocity gain high level trajectory tracking
-parcontroller.k2          = 1.5;  % Position D high level trajectory tracking
+parcontroller.k1          = 9;    % Velocity gain high level trajectory tracking
+parcontroller.k2          = 1.5;  % Acceleration gain high level trajectory tracking
 parcontroller.k3          = 0.6;  % Position P high level trajectory tracking
 parcontroller.kpsi        = 3;    % Gain for psi control low level control
 parcontroller.ktauxy      = 100;  % Gain for rz control low level control
