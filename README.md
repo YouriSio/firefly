@@ -28,11 +28,12 @@ MATLAB. Furthermore, before running any scripts: open the project. This
 ensures that all `.m` files in subfolders are in the MATLAB path.
 
 ## Usage
+Link to [video](https://htshonours2018-2019.slack.com/files/UDCB7A770/FDVKE6DN1/whatsapp_video_2018-11-04_at_18.08.07.mp4) showing basic usage. Basic instructions:
 
 1. Download the files
 2. Open `firefly.prj` in MATLAB
 3. Run `m/run.m`
-4. Create trajectory on `https://yourisio.github.io/trajectory-editor/`
+4. Create trajectory on https://yourisio.github.io/trajectory-editor/
 5. Press export
 
 What will happen next is as follows:
