@@ -5,23 +5,14 @@
 % run in the clicks2traj.m but it can also be run independently when a
 % trajectory is already in T.m.
 
-%% Load trajectory and LED-data
-load(fullfile(pwd, 'mat', 'T'));
-load(fullfile(pwd, 'mat', 'LEDData'));
-
-%% Simulation parameters
-simTime = floor(length(T.X(1,:))/T.period);
-
 %% Initial conditions and parameters for model
 parmodel.MomInertia = diag([0.002 0.002 0.004]);                % moment of inertia [kg m^2]
 parmodel.mass       = 0.5;                                      % mass [kg]
 parmodel.g          = 9.81;                                     % gravity [m/s^2]
-parmodel.pose0      = [T.X(1,1) T.Y(1,1) T.Z(1,1) T.PSI(1,1)];  % initial quad position and yaw
 parmodel.cfdrag     = 0.1;                                      % drag coefficient [-]
 parmodel.cmdrag     = 0.0;                                      % rotation drag coefficient [-]
 
 %% Parameters for the controller
-
 parcontroller.k1          = 1.5;  % Velocity gain high level trajectory tracking
 parcontroller.k2          = 1.5;  % Position D high level trajectory tracking
 parcontroller.k3          = 0.6;  % Position P high level trajectory tracking
@@ -31,3 +22,14 @@ parcontroller.feedforward = true; % Set feed forward
 
 parcontroller.thrust_sat       = 0.1; % Define the minimal thrust
 parcontroller.acceleration_sat = 10;  % Define the maximal absolute desired acceleration
+
+%% Reference trajectory options
+parcontroller.tau = 0.1;             % Input sampling period
+parcontroller.N12 = 10;              % Ratio of input sampling period over output sampling period
+parcontroller.rho = 0.01;           % Weighting factor for control input
+parcontroller.constantheight = true; % Must drone stay at constant height
+parcontroller.height = 1;            % The height in case above is true
+
+%% Plot options
+plots.plot_trajectories = true; % Choose to plot all 3 trajectories
+plots.field_dim = [8 10];       % Dimensions of soccer field

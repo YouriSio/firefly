@@ -2,6 +2,7 @@
 *.slxc
 slprj
 *.autosave
+*.asv
 T.mat
 waypoints.mat
-*.asv
+data/*

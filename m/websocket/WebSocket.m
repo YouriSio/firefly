@@ -1,5 +1,5 @@
 classdef WebSocket < WebSocketServer
-    %WebSocket opens a websocket and communicates with the clients
+    % WebSocket opens a websocket and communicates with the clients
     
     properties
         backlog = {}
@@ -11,13 +11,13 @@ classdef WebSocket < WebSocketServer
         end
         
         function onTextMessage(obj,conn,message)
-            % confirm the sender the information was received
+            % Confirm the sender the information was received
             obj.sendTo(conn.HashCode, 'I have received your points!');
             
-            % reshape the string into a matrix  with columns time, x, y, z, phi
+            % Reshape the string into a matrix  with columns time, x, y, z, phi
             trajectoryData = reshape(str2num(message),[],5);
             
-            % store the trajectorydata with the associated client in a
+            % Store the trajectorydata with the associated client in a
             % backlog
             client = {conn, trajectoryData};
             obj.backlog{end + 1} = client;
@@ -37,17 +37,9 @@ classdef WebSocket < WebSocketServer
         
         function createTrajectory(obj,client)
             coords = client{2};
-            time = coords(:,1);             % Discrete-time
-            px   = coords(:,2);             % X  reference
-            py   = coords(:,3);             % Y  reference
-            pz   = coords(:,4);             % Z  reference
-            psi  = coords(:,5);             % Yaw reference
             
-            % save the variables
-            save(fullfile(pwd, 'mat', 'waypoints'), 'time', 'px', 'py', 'pz', 'psi');
-            
-            % compute the trajectory
-            clicks2traj;
+            % Check if the trajectory is valid
+            [valid, actualtraj] = checktrajectory(coords);
         end
     end
 end
