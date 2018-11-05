@@ -1,6 +1,5 @@
 %% Function points2actualtraj
 % Converts waypoints to an actually simulted trajectory.
-
 function [reftraj, actualtraj] = points2actualtraj(ID, waypoints)
     % Create the directory for data
     mkdir(fullfile(pwd, 'data', ID));
@@ -46,6 +45,11 @@ function [reftraj, actualtraj] = points2actualtraj(ID, waypoints)
     actualtraj.vtheta = simlogdata.signals.values(:,11)';
     actualtraj.vpsi   = simlogdata.signals.values(:,12)';
     
+    %% Record the trajectory
+    if (evalin('base', 'plots.record_trajectory'))
+        traj2avi(ID, actualtraj);
+    end
+    
     %% Save the actual trajectory
     save(fullfile(pwd, 'data', ID, 'actualtraj'), 'actualtraj');
     
@@ -63,10 +67,10 @@ function [reftraj, actualtraj] = points2actualtraj(ID, waypoints)
         xlabel('x');
         ylabel('y');
         zlabel('z');
-        legend('Waypoints', 'Reference trajecotry', 'Actual trajectory');
         view(-70,40);
         Xsf = [field_dim(1), field_dim(1), -field_dim(1), -field_dim(1)]/2;
         Ysf = [field_dim(2), -field_dim(2), -field_dim(2),  field_dim(2)]/2;
         patch(Xsf,Ysf,[0 0 0 0],[0.1 1 0.1]);
+        legend('Waypoints', 'Reference trajecotry', 'Actual trajectory', 'Field');
     end
 end

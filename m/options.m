@@ -26,10 +26,14 @@ parcontroller.acceleration_sat = 10;  % Define the maximal absolute desired acce
 %% Reference trajectory options
 parcontroller.tau = 0.1;             % Input sampling period
 parcontroller.N12 = 10;              % Ratio of input sampling period over output sampling period
-parcontroller.rho = 0.01;           % Weighting factor for control input
+parcontroller.rho = 0.01;            % Weighting factor for control input
 parcontroller.constantheight = true; % Must drone stay at constant height
 parcontroller.height = 1;            % The height in case above is true
 
 %% Plot options
 plots.plot_trajectories = true; % Choose to plot all 3 trajectories
 plots.field_dim = [8 10];       % Dimensions of soccer field
+
+%% Recording options
+plots.record_trajectory = false; % Record the actual trajectory (not recommended)
+plots.record_dim = [1280 720];   % Width and height of video of trajectory
