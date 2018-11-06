@@ -1,5 +1,5 @@
 %% Checks if necessary toolboxes are installed
-% This function is called with the run file and makes sure all the ncessary
+% This function is called with the run file and makes sure all the necessary
 % toolboxes are installed. If not it will return an error with the name of
 % the toolbox not installed.
 function checktoolboxes()
