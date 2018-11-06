@@ -1,8 +1,8 @@
 # Ignore all cache files
-*.slxc
 slprj
 *.autosave
 *.asv
 T.mat
 waypoints.mat
 data/*
+.slxc
