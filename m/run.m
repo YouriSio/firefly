@@ -3,5 +3,6 @@
 clear all;
 clc;
 
+checktoolboxes();
 options;
 startserver();
