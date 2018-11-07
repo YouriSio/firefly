@@ -98,9 +98,9 @@ function [xix,xiy,xiz] = lqrtrajgeneration(P,T,X0,rho,tau1,N12)
         xiz_(:,k+1) = Ad*xiz_(:,k) + Bd*uz_(k);
     end
     
-    xix = [xix_;ux_ ux_(end)];
-    xiy = [xiy_;uy_ uy_(end)];
-    xiz = [xiz_;uz_ uz_(end)];
+    xix = [xix_; ux_ ux_(end)];
+    xiy = [xiy_; uy_ uy_(end)];
+    xiz = [xiz_; uz_ uz_(end)];
 end
 %%
 % function lqrpreview
@@ -114,7 +114,7 @@ end
 % which is given by u_k = K_k x_k + L_k
 %
 % Input arguments:  Matrices A,B,M,R,
-%                   matrix with reference rk = [r0 r1 \dots rh]
+%                   matrix with reference rk = [r0 r1 ... rh]
 %                   initial condition x0
 %                   optionally alphah (default value alphah = 1)
 % Output arguments: matrix with optimal control inputs u = [u0 u1 dots uh-1]

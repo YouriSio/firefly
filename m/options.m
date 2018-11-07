@@ -11,6 +11,7 @@ parmodel.mass       = 0.5;                                      % mass [kg]
 parmodel.g          = 9.81;                                     % gravity [m/s^2]
 parmodel.cfdrag     = 0.1;                                      % drag coefficient [-]
 parmodel.cmdrag     = 0.0;                                      % rotation drag coefficient [-]
+parmodel.pose0      = [0 0 0 0];
 
 %% Parameters for the controller
 parcontroller.k1          = 9;    % Velocity gain high level trajectory tracking
@@ -36,4 +37,4 @@ plots.field_dim = [10 8];       % Dimensions of soccer field
 
 %% Recording options
 plots.record_trajectory = false; % Record the actual trajectory (not recommended)
-plots.record_dim = [1280 720];   % Width and height of video of trajectory
+plots.record_dim = [640 480];   % Width and height of video of trajectory

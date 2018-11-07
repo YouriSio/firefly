@@ -13,7 +13,7 @@ function [actualtraj, valid, valid_msg] = checktrajectory(waypoints)
     fprintf('[ID = %s] Done! Took %fs\n', ID, toc);
     
     %% Perform some checks on the actual trajectory to determine if OK
-    fprintf('[ID = %s] Checking if trajectory is valid\n', ID);
+    fprintf('[ID = %s] Checking if trajectory is valid...\n', ID);
    
     % I propose to check 2 things here:
     % - Calculate MSE between ref and actual trajectory

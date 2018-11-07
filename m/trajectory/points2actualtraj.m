@@ -21,7 +21,6 @@ function [reftraj, actualtraj] = points2actualtraj(ID, waypoints)
     
     %% Generate the actual trajectory
     pose0 = [reftraj.x(1,1), reftraj.y(1,1), reftraj.z(1,1), reftraj.psi(1,1)];
-    
     assignin('base', 'temp', pose0);          % This is bad.... asigning to base workspace
     evalin('base', 'parmodel.pose0 = temp;'); % So should be fixed
     

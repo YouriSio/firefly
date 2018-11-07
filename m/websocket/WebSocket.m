@@ -44,16 +44,21 @@ classdef WebSocket < WebSocketServer
             % Check if the trajectory is valid
             [actualtraj, valid, valid_msg] = checktrajectory(coords);
             
-            t = actualtraj.t';
-            x = actualtraj.x';
-            y = actualtraj.y';
-            z = actualtraj.z';
-            psi = actualtraj.psi';
-            
-            trajStr = mat2str([t, x, y, z, psi]);
-            trajData = strcat('traj=', trajStr(2:end - 1));
-            
-            obj.sendTo(client{1}.HashCode, trajData);
+            if (valid)
+                t = actualtraj.t';
+                x = actualtraj.x';
+                y = actualtraj.y';
+                z = actualtraj.z';
+                psi = actualtraj.psi';
+
+                trajStr = mat2str([t, x, y, z, psi]);
+                trajData = strcat('traj=', trajStr(2:end - 1));
+
+                obj.sendTo(client{1}.HashCode, trajData);
+            else
+                message = strcat('msg=', valid_msg);
+                obj.sendTo(client{1}.HashCode, message);
+            end
         end
     end
 end

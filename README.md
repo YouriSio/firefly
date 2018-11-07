@@ -14,7 +14,7 @@ This ensures that references to the file will be changed everywhere.**
  - [x] Make simulink output actual trajectory
  - [x] Make simulink actually predict trajectory
  - [ ] Make sure drone stops at last point
- - [ ] Get rid of `evalin()` and `assignin` calls
+ - [ ] Get rid of `evalin()` and `assignin()` calls
  - [ ] Optimize actual trajectory to reference trajectory
  - [ ] Implement actual trajectory checks through MSE and collision detection
  - [x] Pass the actual trajectory and information back to the browser
@@ -28,6 +28,12 @@ MATLAB Toolboxes necessary. Note that when `websocket.m` is ran, it will
 automatically add a `.jar` file to the MATLAB Java static path and restart 
 MATLAB. Furthermore, before running any scripts: open the project. This
 ensures that all `.m` files in subfolders are in the MATLAB path.
+
+If cloning does not work, use
+
+```
+git config --system core.longpaths true
+```
 
 ## Usage
 Link to [video](https://htshonours2018-2019.slack.com/files/UDCB7A770/FDVKE6DN1/whatsapp_video_2018-11-04_at_18.08.07.mp4) showing basic usage. Basic instructions:
