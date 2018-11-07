@@ -12,7 +12,7 @@ classdef WebSocket < WebSocketServer
         
         function onTextMessage(obj,conn,message)
             % Confirm the sender the information was received
-            obj.sendTo(conn.HashCode, 'I have received your points!');
+            obj.sendTo(conn.HashCode, 'msg=I have received your points!');
             
             % Reshape the string into a matrix  with columns time, x, y, z, phi
             trajectoryData = reshape(str2num(message),[],5);
@@ -24,6 +24,9 @@ classdef WebSocket < WebSocketServer
             
             % compute the trajectory
             obj.createTrajectory(client);
+            
+
+            
         end
         
         function onBinaryMessage(obj,conn,message)
@@ -40,7 +43,17 @@ classdef WebSocket < WebSocketServer
             
             % Check if the trajectory is valid
             [valid, actualtraj] = checktrajectory(coords);
+            
+            t = actualtraj.t';
+            x = actualtraj.x';
+            y = actualtraj.y';
+            z = actualtraj.z';
+            psi = actualtraj.psi';
+            
+            trajStr = mat2str([t, x, y, z, psi]);
+            trajData = strcat('traj=', trajStr(2:end - 1));
+            
+            obj.sendTo(client{1}.HashCode, trajData);
         end
     end
 end
-
