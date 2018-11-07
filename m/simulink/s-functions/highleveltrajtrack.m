@@ -4,13 +4,13 @@
 % comparing the actual state with the wanted state through some algorithm.
 
 %% The S-function
-function [sys,x0,str,ts,simStateCompliance] = highleveltrajtrack(t,x,u,flag, reftraj,parcontroller)
+function [sys,x0,str,ts,simStateCompliance] = highleveltrajtrack(t,x,u,flag,reftraj,parcontroller)
     switch flag
         case 0
             [sys,x0,str,ts,simStateCompliance] = mdlInitializeSizes(reftraj);
         case 3
-            sys=mdlOutputs(t,x,u,reftraj,parcontroller);  
-        case {1, 2, 4, 9} % No discrete states, so 1,4 and 9 not used.
+            sys = mdlOutputs(t,x,u,reftraj,parcontroller);  
+        case {1, 2, 4, 9} % No discrete states; 1, 4 and 9 not used.
             sys = [];  
         otherwise
             DAStudio.error('Simulink:blocks:unhandledFlag', num2str(flag));
@@ -40,15 +40,15 @@ function sys = mdlOutputs(~,~,u,reftraj,parcontroller)
     k2 = parcontroller.k2; %Position D
 
     % Gather current state
-    x_world    = u(1);
-    y_world    = u(2);
-    z_world    = u(3);
-    psi_world  = u(4);
-    vx_world   = u(5);
-    vy_world   = u(6);
-    vz_world   = u(7);
-    vpsi_world = u(8);
-    t          = u(9);
+    x    = u(1);
+    y    = u(2);
+    z    = u(3);
+    psi  = u(4);
+    vx   = u(5);
+    vy   = u(6);
+    vz   = u(7);
+    vpsi = u(8);
+    t    = u(9);
 
     % PD law with or without feedforward
     indt = min(max(floor(t/reftraj.period),1),size(reftraj.x,2));
@@ -69,15 +69,15 @@ function sys = mdlOutputs(~,~,u,reftraj,parcontroller)
     
     % Compute acceleration to reach wanted state
     if parcontroller.feedforward == 1
-        ax   = k1*(x_des - x_world) + k2*(vx_des-vx_world) + ax_des;
-        ay   = k1*(y_des - y_world) + k2*(vy_des-vy_world) + ay_des;
-        az   = k1*(z_des - z_world) + k2*(vz_des-vz_world) + az_des;
-        apsi = k1*(psi_des - psi_world) + k2*(vpsi_des-vpsi_world) + apsi_des;
+        ax   = k1*(x_des - x) + k2*(vx_des - vx) + ax_des;
+        ay   = k1*(y_des - y) + k2*(vy_des - vy) + ay_des;
+        az   = k1*(z_des - z) + k2*(vz_des - vz) + az_des;
+        apsi = k1*(psi_des - psi) + k2*(vpsi_des-vpsi) + apsi_des;
     else
-        ax   = k1*(x_des - x_world) + k2*(-vx_world);
-        ay   = k1*(y_des - y_world) + k2*(-vy_world);
-        az   = k1*(z_des - z_world) + k2*(-vz_world); 
-        apsi = k1*(psi_des - psi_world) + k2*(-vpsi_world);
+        ax   = k1*(x_des - x) + k2*(-vx);
+        ay   = k1*(y_des - y) + k2*(-vy);
+        az   = k1*(z_des - z) + k2*(-vz); 
+        apsi = k1*(psi_des - psi) + k2*(-vpsi);
     end
 
     % Output

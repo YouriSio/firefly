@@ -17,9 +17,10 @@ This ensures that references to the file will be changed everywhere.**
  - [ ] Get rid of `evalin()` and `assignin` calls
  - [ ] Optimize actual trajectory to reference trajectory
  - [ ] Implement actual trajectory checks through MSE and collision detection
- - [ ] Pass the actual trajectory and information back to the browser
+ - [x] Pass the actual trajectory and information back to the browser
  - [x] Fixe an issue where the drone increases in z-axis when going fast
- - [ ] Remove visualisation from the simulink model, as it is already implemented seperatedly
+ - [x] Remove visualisation from the simulink model, as it is already implemented seperatedly
+ - [ ] Make rapid accelerator mode possible; get rid of structs in S-functions
 
 ## Installation
 No installation is required besides downloading the repository and the 

@@ -5,7 +5,7 @@
 % input points (xi,yi,zi) and times Ti, i = 1,\dots,N
 %
 % Input arguments
-% - $P$ is an $3 \times N$ vector such that
+% - P is an 3xN vector such that
 %   $ P = \begin{bmatrix}
 % 			p_1 & p_2 & \dots & p_N
 % 		  \end{bmatrix}$ \\
@@ -18,8 +18,8 @@
 % 				 y(T1) & y'(T1) & \dots & y^{(n-1)(T1)} \\
 % 				x(T1) & x'(T1) & \dots & x^{(n-1)(T1)} ]
 % - rho is a weighting factor for the control input
-% -\tau_1 is the sampling period to formulate the problem.
-% -N12 is such that \tau_2 = tau1/N12 is the output sampling period.
+% - tau1 is the sampling period to formulate the problem.
+% - N12 is such that tau2 = tau1/N12 is the output sampling period.
 %
 % output arguments are
 % - xix is a matrix with entries
@@ -92,10 +92,10 @@ function [xix,xiy,xiz] = lqrtrajgeneration(P,T,X0,rho,tau1,N12)
     uy_ = kron(uy,ones(1,N12));
     uz_ = kron(uz,ones(1,N12));
     
-    for kappa = 1:h*N12
-        xix_(:,kappa+1) = Ad*xix_(:,kappa) + Bd*ux_(kappa);
-        xiy_(:,kappa+1) = Ad*xiy_(:,kappa) + Bd*uy_(kappa);
-        xiz_(:,kappa+1) = Ad*xiz_(:,kappa) + Bd*uz_(kappa);
+    for k = 1:h*N12
+        xix_(:,k+1) = Ad*xix_(:,k) + Bd*ux_(k);
+        xiy_(:,k+1) = Ad*xiy_(:,k) + Bd*uy_(k);
+        xiz_(:,k+1) = Ad*xiz_(:,k) + Bd*uz_(k);
     end
     
     xix = [xix_;ux_ ux_(end)];

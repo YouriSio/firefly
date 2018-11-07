@@ -68,6 +68,7 @@ function [reftraj, actualtraj] = points2actualtraj(ID, waypoints)
         ylabel('y');
         zlabel('z');
         view(-70,40);
+        set(gca,'Ydir','reverse')
         Xsf = [field_dim(1), field_dim(1), -field_dim(1), -field_dim(1)]/2;
         Ysf = [field_dim(2), -field_dim(2), -field_dim(2),  field_dim(2)]/2;
         patch(Xsf,Ysf,[0 0 0 0],[0.1 1 0.1]);

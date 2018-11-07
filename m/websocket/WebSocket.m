@@ -42,7 +42,7 @@ classdef WebSocket < WebSocketServer
             coords = client{2};
             
             % Check if the trajectory is valid
-            [valid, actualtraj] = checktrajectory(coords);
+            [actualtraj, valid, valid_msg] = checktrajectory(coords);
             
             t = actualtraj.t';
             x = actualtraj.x';
